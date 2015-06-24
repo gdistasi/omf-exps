@@ -1,0 +1,96 @@
+--- orig/agentCommands.rb	2013-03-01 13:27:44.340084395 +0100
++++ agentCommands.rb	2013-03-01 13:27:29.952084268 +0100
+@@ -599,13 +599,13 @@
+     return "ebtables -F ; ebtables -X"
+   end
+ 
+-  def AgentCommands.set_link_mackill(options)
++  def AgentCommands.set_link_mackill_orig(options)
+     cmd1 = "echo - #{options.blockedMAC} > /proc/net/mackill"
+     cmd2 = "sudo chmod 666 /proc/net/mackill ; "+
+            "sudo echo \"-#{options.blockedMAC}\">/proc/net/mackill"
+     return [cmd1, cmd2]
+   end
+-  def AgentCommands.reset_link_mackill(interface)
++  def AgentCommands.reset_link_mackill_orig(interface)
+     return "echo '' >  /proc/net/mackill"
+   end
+ 
+@@ -838,7 +838,77 @@
+   end
+ 
+ 
++  def AgentCommands.set_link_80211s(options)
++    return "iw dev wlan0 station set #{options.blockedMAC} plink_action block; " +
++    "iw dev wlan1 station set #{options.blockedMAC} plink_action block;"
++  end
++  
++  def AgentCommands.reset_link_80211s(options)
++    return "iw dev wlan0 station set #{options.blockedMAC} plink_action block; " +
++    "iw dev wlan1 station set #{options.blockedMAC} plink_action open;"
++  end
++  
++  def AgentCommands.set_link_l2routing(options)
++ 
++    #click in kernel mode
++    if File.exists?("/click/config")
++	file=File.open("/click/geslinks/kill_mac", "w")
++	file.puts("#{options.blockedMAC}")
++        file.close()
++        sleep(0.1)
++
++    #click in user mode
++    else
++	cmd="write geslinks.kill_mac #{options.blockedMAC}"
++	s = TCPSocket.open("127.0.0.1", 7777)
++	s.puts(cmd)
++	s.close()
++    end 
++   
++    return "/bin/true"
++  end
+ 
++  def AgentCommands.reset_link_l2routing(options)
++    #do nothing
++    return "/bin/true"
++  end
++
++  def AgentCommands.set_link_mackill(options)
++    #cmd1 = "echo - #{options.blockedMAC} > /proc/net/mackill"
++    #cmd2 = "sudo chmod 666 /proc/net/mackill ; "+
++    #      "sudo echo \"-#{options.blockedMAC}\">/proc/net/mackill"
++    #[cmd1, cmd2]
++    if `ps afxu`.include?("click") or `lsmod`.include?("click")
++    	set_link_l2routing(options)
++    elsif `iw dev wlan0 info`.include?("type mesh point")
++	result=`#{set_link_80211s(options)}`
++    elsif `lsmod`.include?("batman_adv")
++        MObject.debug("AgentCommands", "Batman-adv identified.")
++	result=`#{set_link_ebtable(options)}`
++	MObject.debug("AgentCommands", "Command: #{set_link_ebtable(options)}; Result: #{result}")
++    else
++        result=`#{set_link_iptable(options)}`
++    end  
++    return "/bin/true"
++  end
++  
++  def AgentCommands.reset_link_mackill(interface)
++    #"echo '' >  /proc/net/mackill"
++    if `ps afxu`.include?("click")
++         MObject.debug("AgentCommands", "L2R identified.")
++	reset_link_l2routing(interface)
++    elsif `iw dev wlan0 info`.include?("type mesh point")
++        MObject.debug("AgentCommands", "802.11s identified.")
++	result=`#{reset_link_80211s(interface)}`
++    elsif `lsmod`.include?("batman_adv")
++        MObject.debug("AgentCommands", "Batman-adv identified.")
++	result=`#{reset_link_ebtable(interface)}`
++    else
++        MObject.debug("AgentCommands", "Using iptable to cut links.")
++	result=`#{reset_link_iptable(interface)}`
++    end
++    return "/bin/true"
++  end  
+ 
+ end
+ 

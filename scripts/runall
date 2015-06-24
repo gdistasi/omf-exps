@@ -1,0 +1,2 @@
+#!/bin/bash
+for i in `cat topo53 | tr , " "`; do ssh root@$i "echo Node $i:; $1";  done

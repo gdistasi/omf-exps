@@ -1,0 +1,53 @@
+# MaxDistance: 6.0
+# MinDistance: 4.0
+#0
+R 9 17 2
+#1
+R 4 12 2
+#2
+R 16 20 2
+#3
+#R 3 4 2 is replaced by
+R 3 6 2
+#4
+#R 17 12 2 is replaced by
+R 18 11 2
+#5
+R 13 12 2
+#6
+#R 16 2 2 is replaced by
+R 14 6 2
+#7
+R 19 7 2
+#8
+R 9 6 2
+#9
+R 20 17 2
+#10
+R 4 17 2
+#11
+R 3 9 2
+#12
+R 9 12 2
+#13
+S 2 9 2
+#14
+#S 2 5 2
+#15
+S 2 5 2
+#16
+D 15 19 2
+#17
+#D 16 8 2 is replaced by
+D 17 9 2
+
+
+#nodi a disposizione D 16 10
+
+
+#R 14 8 2
+#R 16 15 2
+
+
+#removed 19,16 13,12 
+#20,20 caserver

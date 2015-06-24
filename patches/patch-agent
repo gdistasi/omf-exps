@@ -1,0 +1,67 @@
+--- agentCommands.rb-orig	2011-07-26 22:45:28.000000000 +0200
++++ agentCommands.rb	2011-07-26 11:39:04.000000000 +0200
+@@ -1,3 +1,4 @@
++
+ #
+ # Copyright (c) 2006-2009 National ICT Australia (NICTA), Australia
+ #
+@@ -66,8 +67,8 @@
+   # Mapping between OMF's device name and Linux's device name
+   DEV_MAPPINGS = {
+     'net/e0' => EthernetDevice.new('net/e0', 'eth0'),
+-    'net/e1' => EthernetDevice.new('net/e1', 'eth1'),
+-    #'net/w2' => AironetDevice.new('net/w2', 'eth2')
++    'net/e1' => EthernetDevice.new('net/e1', 'eth2'),
++#    'net/w0' => AironetDevice.new('net/w0', 'ath0')
+   }
+ 
+   # 
+@@ -566,6 +567,19 @@
+     }
+   end
+ 
++  def AgentCommands.set_link_l2routing(options)
++    cmd="write geslinks.kill_mac #{options.blockedMAC}"
++    s = TCPSocket.open("127.0.0.1", 7777)
++    s.puts(cmd)
++    s.close()
++    return "/bin/true"
++  end
++
++  def AgentCommands.reset_link_l2routing(options)
++    #do nothing
++    return "/bin/true"
++  end
++
+   def AgentCommands.set_link_iptable(options)
+     cmd= "iptables -A INPUT -m mac --mac-source #{options.blockedMAC} -j DROP"
+     return [cmd]
+@@ -578,19 +592,22 @@
+     cmd= "ebtables -A INPUT --source #{options.blockedMAC} -j DROP"
+     return [cmd]
+   end
++  
+   def AgentCommands.reset_link_ebtable(interface)
+     return "ebtables -F ; ebtables -X"
+   end
+ 
+   def AgentCommands.set_link_mackill(options)
+-    cmd1 = "echo - #{options.blockedMAC} > /proc/net/mackill"
+-    cmd2 = "sudo chmod 666 /proc/net/mackill ; "+
+-           "sudo echo \"-#{options.blockedMAC}\">/proc/net/mackill"
+-    return [cmd1, cmd2]
++    #cmd1 = "echo - #{options.blockedMAC} > /proc/net/mackill"
++    #cmd2 = "sudo chmod 666 /proc/net/mackill ; "+
++    #       "sudo echo \"-#{options.blockedMAC}\">/proc/net/mackill"
++    #return [cmd1, cmd2]a
++    set_link_l2routing(options)
+   end
+   def AgentCommands.reset_link_mackill(interface)
+-    return "echo '' >  /proc/net/mackill"
+-  end
++    #return "echo '' >  /proc/net/mackill"
++    reset_link_l2routing(interface)
++  end  
+ 
+   def AgentCommands.set_link_netem(options)
+     iface = DEV_MAPPINGS["net/#{options.interface}"].deviceName
