@@ -19,12 +19,21 @@ class RoutingStack
   
   #define some properties that can be set from the command line
   def DefProperties
- 
+    defProperty('stabilizeDelay', '', "time to wait for the network to stabilize before starting the experiment")
   end
   
   def InstallStack
 
   end
+
+
+  #start the routing stack
+  def StartStack
+    #puts "StartStack not defined!"
+    #exit 1
+    @rstack.StartStack
+  end
+
   
   def GetIpFromId(id)
       

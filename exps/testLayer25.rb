@@ -1,12 +1,12 @@
-require "./layer25.rb"
-require "./olsr.rb"
-require "./80211s.rb"
-require "./creass.rb"
-require "./aodv.rb"
-require "./batman-adv.rb"
+require "routing/layer25.rb"
+require "routing/olsr.rb"
+require "routing/80211s.rb"
+require "ch_assignment/creass.rb"
+require "routing/aodv.rb"
+require "routing/batman-adv.rb"
 
-require "./ChannelAssigner.rb"
-require "./SenderReceiverPattern.rb"
+require "ch_assignment/ChannelAssigner.rb"
+require "traffic/SenderReceiverPattern.rb"
 
 defProperty('duration', 120, "Overall duration in seconds of the experiment")
 defProperty('topo', 'topos/topo0', "topology to use")

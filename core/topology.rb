@@ -1,4 +1,5 @@
-require './utils.rb'
+require 'utils/utils.rb'
+require 'node.rb'
 
 class Orbit
 
@@ -279,8 +280,7 @@ class Topology
   
 end
 
-
- class Link
+class Link
   
     attr_accessor :from, :to, :quality, :rate
   
@@ -294,38 +294,9 @@ end
 
   end
        
-  class Node
-  
-    attr_accessor :id, :x, :y, :radios, :type
-  
-    def initialize(id, type, x, y, radios)
-      @x = x
-      @y = y
-      @radios = radios
-      @type = type
-      @id=id
-      @addresses = Array.new
-    end
 
-    def AddAddress(ip,netmask,interface)
-      @addresses << Address.new(ip,netmask,interface)
-    end
-    
-    def GetId()
-      return id
-    end
-    
-    def GetType()
-      return type
-    end
-    
-    def GetAddresses
-      return @addresses
-   end
-   
-  end
   
-  class Address
+ class Address
     
     attr_accessor :ip, :netmask, :interface
     
@@ -338,6 +309,7 @@ end
   end
   
 end
+
 
 if __FILE__ == $0
 

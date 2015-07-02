@@ -11,6 +11,9 @@ require 'set'
 require 'open-uri'
 require 'pp'
 
+
+# This class implements an API that serves the purpose of interacting with the ORBIT testbed.
+
 class Orbit
   
   #include Commands from EC
@@ -116,15 +119,6 @@ class Orbit
       end
   end
   
-  def SetRoutingStack(rstack)
-    @rstack=rstack
-    @rstack.SetOrbit(self)
-  end
-  
-  def GetRoutingStack()
-    return @rstack
-  end
-  
   def SetChannels(channels)
     @channels=channels
   end
@@ -144,7 +138,6 @@ class Orbit
   #define some properties that can be set from the command line
   def DefProperties
     defProperty('env', 'ORBIT', "testbed to be used: ORBIT, NEPTUNE")
-    defProperty('stabilizeDelay', '', "time to wait for the network to stabilize before starting the experiment")
     defProperty('initialChannels', '', "initial channels to be used on all the nodes")
     defProperty('mdebug', '', "set to yes if you want to enable debug (currently only for l2r)")
     defProperty('stats', '', "number of seconds between each collection of statistics. 0 to avoid at all collecting statistics.")
@@ -175,14 +168,6 @@ class Orbit
     @power=power
   end
   
-  def GetReceivers
-    return @receivers
-  end
-  
-  def GetSenders
-    return @senders
-  end
-
   def GetInterfaces
     @interfaces
   end
@@ -199,6 +184,45 @@ class Orbit
   def Log(message)
     WriteInLogs(message)
   end
+  
+  def SetChannelsAndRate(node, channels=@channels)
+	i=0
+	
+     	node.GetInterfaces().each do |ifn|
+  
+		if (@imposed_chs!=nil)
+		  ch=@channels[@imposed_chs[i]]
+	    	else  
+		  if (i==0)
+		    ch=@channels[0]
+		  else
+		    ch=@channels[i]
+		  end
+	    	end
+	    
+		if (@setradios and ifn.IsWifi())
+		  
+		    @orbit.GetGroupInterface(node, ifn).channel="#{ch}"
+		    
+		    if (@rate!=0)
+			  @orbit.GetGroupInterface(node, ifn).rate="#{@rate}"
+		    end
+
+		                
+		    #Set IBSS if SetAp option is set - after the interface is created
+		    if (property.setAp.to_s!="")
+		      @orbit.GetGroupInterface(node, ifn).ap=property.setAp.to_s
+		    end
+		    
+		    i=i+1
+		end
+		
+		#self.GetGroupInterface(node, ifn).up
+		
+		
+	end
+  end
+  
   
   #install the routing stack
   def InstallStack
@@ -224,12 +248,6 @@ class Orbit
     return @rstack.GetSubnet()
   end
   
-  #start the routing stack
-  def StartStack
-    #puts "StartStack not defined!"
-    #exit 1
-    @rstack.StartStack
-  end
 
   #not used anymore - to remove
   def StartStackStatCollection
@@ -577,18 +595,18 @@ class Orbit
       @rstack.SetMtu(node)
   end
   
-  def SetChannelsAndRate(node)
+  def SetChannelsAndRate(node, channels=@channels)
 	i=0
 	
-     	@interfaces.each do |ifn|
+     	node.GetInterfaces().each do |ifn|
   
 		if (@imposed_chs!=nil)
-		  ch=@channels[@imposed_chs[i]]
+		  ch=channels[@imposed_chs[i]]
 	    	else  
 		  if (i==0)
-		    ch=@channels[0]
+		    ch=channels[0]
 		  else
-		    ch=@channels[i]
+		    ch=channels[i]
 		  end
 	    	end
 	    
@@ -618,7 +636,7 @@ class Orbit
   def SetWifiPower(node)
     	
      if (@power!=nil and @setradios)
-	@interfaces.each do |ifn|
+	node.GetInterfaces().each do |ifn|
 	     if ifn.IsWifi()
 	      if ifn.type.include?("Atheros")
 	        real_name="ath#{ifn.name[-1,1]}"
@@ -661,7 +679,7 @@ class Orbit
   
   # FIXME orbit requires to assign an ip address to node to get the MAC of the interfaces
   def SetIp(node)
-       	@interfaces.each do |ifn|
+       	node.GetInterfaces().each do |ifn|
 	  self.GetGroupInterface(node, ifn).ip="1.1.1.1"
   	  self.GetGroupInterface(node, ifn).up
 	end
