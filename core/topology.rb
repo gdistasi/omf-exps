@@ -1,5 +1,7 @@
 require 'utils/utils.rb'
 require 'node.rb'
+require 'nokogiri'
+
 
 class Orbit
 
@@ -200,8 +202,10 @@ class Topology
 
     		file=File.new(topo, "r")
 
-    		# reading nodes information
-    		while (line = file.gets)
+		if (not topo.include?(".xml"))
+		
+		  # reading nodes information
+		  while (line = file.gets)
       			line.chomp!("\n")
       			if (line.size==0 or line.strip[0].chr=='#')
 				next
@@ -239,6 +243,27 @@ class Topology
 	
       			end
 
+		  else
+		    
+		    doc = Nokogiri::XML(IO.readlines(topo))
+		    
+		    doc.xpath('//node').each do |node|
+		      
+		      puts "ID   = " + thing.at_xpath('name').content
+		      name = node.at_xpath('name').content
+		      type = node.at_xpath('@type').content
+		      
+		      node.at_xpath('interfaces').each do |ifn|
+			channel = node.at_xpath('channel').content
+			mode = node.at_xpath('mode').content	
+		      end
+			
+		      nodeObj=
+		      
+		    end
+		    
+		    
+		  end
 
 		end    
 

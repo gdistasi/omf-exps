@@ -406,10 +406,12 @@ class Orbit
       #onEvent(:ALL_INTERFACE_UP) do |event|
 	info("Enforcing topology.")
 
-	@interfaces.each do |ifn|
-	  self.GetAllGroupsInterface(ifn).enforce_link =  {:topology => 'testbed', :method => @topotool }
+	@nodes.each do |node|
+	  node.GetInterfaces().each do |ifn|
+	    self.GetAllGroupsInterface(ifn).enforce_link =  {:topology => 'testbed', :method => @topotool }
+	  end
 	end
-	
+	  
     #end
   end
 
@@ -572,17 +574,23 @@ class Orbit
   end
 
   def SetMode(node)
-     	@interfaces.each do |ifn|
+    
+     	node.GetInterfaces().each do |ifn|
             info("Configuring interface #{ifn.name}")
 	    if (@setradios and ifn.IsWifi())
-		self.GetGroupInterface(node,ifn).mode="adhoc"
+		if (ifn.GetMode()=="adhoc")
+		  self.GetGroupInterface(node,ifn).mode="adhoc"
+		elsif (ifn.GetMode())="master")
+		  self.GetGroupInterface(node,ifn).mode="master"
+		end  
+
 		self.GetGroupInterface(node,ifn).type="a"
 	    end
 	end
   end
   
   def SetEssid(node)
-     	@interfaces.each do |ifn|
+     	node.GetInterfaces().each do |ifn|
 		  #info("Configuring interface #{ifn.name}")
 	    if (@setradios and ifn.IsWifi())
 		self.GetGroupInterface(node,ifn).essid="meshnet"
@@ -714,7 +722,7 @@ class Orbit
       tcpdumpHelper=TcpdumpHelper.new
       @nodes.each do |node|
 	if node.type=="R" or node.type=="A" or node.type=="G"
-	  @interfaces.each do |ifn|
+	  node.GetInterfaces().each do |ifn|
 	    @tcpdumpApps.Add(tcpdumpHelper.Install(node.id, ifn.name))
 	  end
 	  ints=Set.new

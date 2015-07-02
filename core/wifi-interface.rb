@@ -8,5 +8,6 @@ class WifiInterface
     @mode=mode #master, station or ad-hoc
   end
 
+  
 
 end

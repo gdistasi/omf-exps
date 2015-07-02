@@ -23,6 +23,10 @@
       @interfaces=interf
     end
     
+    def AddInterface(int)
+      @interfaces << int
+    end
+    
     def GetId()
       return id
     end
@@ -42,9 +46,6 @@
    def GetRoutingStack()
     return @rstack
    end
-   
-   
-   
    
 end
   
