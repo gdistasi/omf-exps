@@ -1,6 +1,6 @@
-require './orbit.rb'
-require './routing_stack.rb'
-require './apps.rb'
+require 'core/orbit.rb'
+require 'core/routing_stack.rb'
+require 'core/apps.rb'
 require 'set'
 require 'test/unit'
 

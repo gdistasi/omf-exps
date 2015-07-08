@@ -1,5 +1,5 @@
-require './orbit.rb'
-require './helper.rb'
+require 'core/orbit.rb'
+require 'core/helper.rb'
 
 class TcpdumpHelper < Helper
   

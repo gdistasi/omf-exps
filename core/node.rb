@@ -1,26 +1,48 @@
 
-
-
- class Node
+class Orbit
+class Topology
   
-    attr_accessor :id, :x, :y, :radios, :type
+class Node
   
-    def initialize(id, type, x, y, radios)
-      @x = x
-      @y = y
-      @numRadios = numRadios
-      @type = type
+    attr_accessor :id, :x, :y, :radios, :type, :name
+  
+    def initialize(id, name, type="R")
       @id=id
-      @addresses = Array.new
+      @name=name
+      @interfaces = Array.new
+      AddInterface(Interface.new("control"))
+      AddInterface(Interface.new("data"))
     end
     
+    def SetPos(x,y)
+      @x=x
+      @y=y
+    end
     
-    def AddAddress(ip,netmask,interface)
-      @addresses << Address.new(ip,netmask,interface)
+    #def initialize(id, type, x, y, radios=0)
+    #  @x = x
+    #  @y = y
+    #  @numRadios = numRadios
+    #  @type = type
+    #  @id=id
+    #  @addresses = Array.new
+
+    #end
+        
+    def AddAddress(address, ifn)
+      ifn.AddAddress(address)
     end
     
     def AddInterfaces(interf)
       @interfaces=interf
+    end
+    
+    def GetControlInterface()
+      return @interfaces[0]
+    end
+    
+    def GetDataInterface()
+      return @interfaces[1]
     end
     
     def AddInterface(int)
@@ -48,4 +70,7 @@
    end
    
 end
-  
+
+end
+
+end

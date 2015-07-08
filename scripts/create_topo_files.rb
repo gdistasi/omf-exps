@@ -1,5 +1,5 @@
-require "./orbit.rb"
-require "./topology.rb"
+require 'core/orbit.rb'
+require 'core/topology.rb'
 
 defProperty('topo', 'topos/topo0', "topology to use")
 

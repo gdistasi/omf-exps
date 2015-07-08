@@ -19,7 +19,11 @@ if  ! [[ $ENV ]]; then
 
 fi
 
-omf-${OMFVER} exec create_topo_files.rb -- --topo $1 --env $ENV
+
+export RUBYLIB="/home/gdistasi/omf-tools/"
+
+DIRA=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+omf-${OMFVER} exec ${DIRA}/create_topo_files.rb -- --topo $1 --env $ENV
 
 
 if [[ $ENV == "ORBIT" ]] || [[ $ENV == ORBIT_SB* ]]; then
@@ -44,6 +48,7 @@ if [[ $ENV == "ORBIT" ]] || [[ $ENV == ORBIT_SB* ]]; then
     #image="gdistasi-node-node1-2.sb1.orbit-lab.org-2013-03-07-08-15-39.ndz" #agentCommands patched
     image="giovanni-new.ndz"
   fi
+  
 
 
   #

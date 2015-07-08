@@ -1,4 +1,4 @@
-require './orbit.rb'
+require 'core/orbit.rb'
 require './routing_stack.rb'
 require './apps.rb'
 require './click.rb'

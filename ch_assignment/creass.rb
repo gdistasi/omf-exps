@@ -1,10 +1,10 @@
-require './orbit.rb'
-require './apps.rb'
-require './caserver-helper.rb'
-require './ditg-helper.rb'
-require './loadplanner.rb'
-require './rtlogger-helper.rb'
-require './caagent-helper.rb'
+require 'core/orbit.rb'
+require 'core/apps.rb'
+require 'ch_assignment/caserver-helper.rb'
+require 'traffic/ditg-helper.rb'
+require 'traffic/loadplanner.rb'
+require 'utils/rtlogger-helper.rb'
+require 'ch_assignment/caagent-helper.rb'
 
 #Channel reassignment experiment
 class ChannelReassignExp < Orbit::Exp

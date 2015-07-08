@@ -1,6 +1,10 @@
-require "./utils.rb"
-require "./topology.rb"
-require "./tcpdump-helper.rb"
+require "utils/utils.rb"
+require "core/topology.rb"
+require "utils/tcpdump-helper.rb"
+require "core/wifi-interface.rb"
+require "core/interface.rb"
+require "core/wifi-interface.rb"
+require "core/node.rb"
 
 require 'omf-expctl/handlerCommands.rb'
 require 'omf-expctl/nodeHandler'
@@ -32,6 +36,8 @@ class Orbit
     
     #rate == 0 => autorate
     @rate=0
+    
+    @ifn_mapping = Array.new
     
     DefProperties()
         
@@ -94,11 +100,11 @@ class Orbit
     
     
     if (property.env.to_s.include?("ORBIT") or property.env.to_s=="NEPTUNE" or property.env.to_s=="WILEE")
-	AddInterface(Orbit::Interface.new("wlan0","WifiAdhoc"))
-	AddInterface(Orbit::Interface.new("wlan1","WifiAdhoc"))
+	AddInterfaceMapping(0, "wlan0")
+	AddInterfaceMapping(1, "wlan1")
     else
-	AddInterface(Orbit::Interface.new("eth0","Ether"))
-	AddInterface(Orbit::Interface.new("eth2","Ether"))
+	AddInterface(Orbit::Interface.new("eth0"))
+	AddInterface(Orbit::Interface.new("eth2"))
     end
 
     #delete old files
@@ -127,6 +133,10 @@ class Orbit
     info(msg)
   end
   
+  def AddInterfaceMapping(num, ifn_name)
+    @ifn_mapping[num]=ifn_name
+  end
+  
   def GetEnv
     return @env
   end
@@ -144,6 +154,8 @@ class Orbit
     defProperty('setAp', '', "IBSS id to set on interfaces in ad-hoc mode: the following command is called: iwconfig <interface> ap <value_given>")
     defProperty('startTcpdump', 'no', "set to yes to have Tcpdump started on nodes")
     defProperty('channels', nil, "comma separated list of channels to use")
+    defProperty('stabilizeDelay', '', "time to wait for the network to stabilize before starting the experiment")
+
   end
   
   #Set to yes if this class has to set the radios (in case the radios are WiFi)
@@ -184,6 +196,11 @@ class Orbit
   def Log(message)
     WriteInLogs(message)
   end
+	            
+	            
+  def AssignChannel(node, ifn, ch)
+      GetGroupInterface(node, ifn).channel="#{ch}"
+  end
   
   def SetChannelsAndRate(node, channels=@channels)
 	i=0
@@ -202,7 +219,7 @@ class Orbit
 	    
 		if (@setradios and ifn.IsWifi())
 		  
-		    @orbit.GetGroupInterface(node, ifn).channel="#{ch}"
+		    AssignChannel(node, ifn, ch)
 		    
 		    if (@rate!=0)
 			  @orbit.GetGroupInterface(node, ifn).rate="#{@rate}"
@@ -302,6 +319,15 @@ class Orbit
     return node
     
   end
+	         
+	            
+  def GetTopology()
+     return @topology
+  end
+	            
+	            def SetDefaultTxPower(power)
+		      SetPower(power)
+	            end
 
   #Set the topo to be used in the experiment
   def UseTopo(topo)
@@ -314,6 +340,12 @@ class Orbit
 	@links=topo.links
 	@wired_links=topo.wired_links
 	
+	            
+	if (topo.class!=Topology) then
+	  topo=Topology.new(topo, self)
+        end
+	            
+	            
 	@topology=topo
 
 	#define the topology in OMF
@@ -334,7 +366,7 @@ class Orbit
 
 		# The filename is: 'ID-Graph.dot' where 'ID' is this experiment ID
 		#t.saveGraphToFile()
-
+l
 	end	
 	
 	
@@ -360,13 +392,19 @@ class Orbit
 	    #set the ip address of the two interfaces used to realize the link
 	    #@orbit.Node(@caserver_node.id).net.e0.up
 	    #@orbit.Node(@caserver_node.id).net.e0.ip="192.168.7.#{@caserver_node.id}/24"
-	    Node(wlink.from.id).exec("ip addr add 192.168.#{wlink.to.id}.1/24 dev #{GetDataInterface()}; ifconfig #{GetDataInterface()} up")
+	    Node(wlink.from.id).exec("ip addr add 192.168.#{wlink.to.id}.1/24 dev #{GetDataInterface()}; ifconfig #{GetDataInterface()} up")      
+	    Node(wlink.from.id).GetDataInterface().AddAddress("192.168.#{wlink.to.id}.1", 24)
 	    wlink.from.AddAddress("192.168.#{wlink.to.id}.1", 24, GetDataInterface())
+	            
 	    Node(wlink.from.id).exec("sysctl -w net.ipv4.conf.all.accept_redirects=0")
 	    #@orbit.Node(@receiver.id).net.e0.up
 	    #@orbit.Node(@receiver.id).net.e0.ip="192.168.7.#{@receiver.id}/24"
 	    Node(wlink.to.id).exec("ip addr add 192.168.#{wlink.to.id}.2/24 dev #{GetDataInterface()}; ifconfig #{GetDataInterface()} up ")
+	    Node(wlink.to.id).GetDataInterface().AddAddress("192.168.#{wlink.to.id}.2", 24)
+	            
     	    wlink.to.AddAddress("192.168.#{wlink.to.id}.2", 24, GetDataInterface())
+	    Node(wlink.from.id).GetDataInterface().AddAddress("192.168.#{wlink.to.id}.1", 24)
+
 
 	    
 	    #add a routing rule to the external node to reach the mesh network through receivers[0]	
@@ -414,10 +452,20 @@ class Orbit
 	  
     #end
   end
-
+	            
+	            
+  def AddNode(name)
+		    node = Node.new(name, @lastId)
+		    @lastId=@lastId+1
+	            DefineGroup(node)
+	            return node	           
+  end
+	            
+	            
   #Add a node to the experiment
   def AddNode(type, xpos, ypos, numRadios )
-	node = Node.new(@lastId, type, xpos, ypos, numRadios )
+	node = Orbit::Topology::Node.new(@lastId, NodeName(xpos, ypos), type)
+	node.SetPos(xpos,ypos)
 	@lastId=@lastId+1
 	#let OMF know we have created this node
 	DefineGroup(node)
@@ -512,7 +560,7 @@ class Orbit
     end
   end
   
-  #function the get the control interface of nodes
+  #function the get the control interface of nodesl
   def GetControlInterface()
 	if (@env.include?("ORBIT"))
 		"eth1"
@@ -551,9 +599,14 @@ class Orbit
   #each node is associated with a group whose name is "node#{node.id}"
   #this group will be used to refer to the node
   def DefineGroup(node)
-    defGroup("node#{node.id}",  NodeName(node.x,node.y))
+	            if node.name != nil then
+	                defGroup("node#{node.id}",  node.name)
+	            else
+			defGroup("node#{node.id}",  NodeName(node.x,node.y))
+		    end
   end
-  
+	            
+	            
   #cleaning up - killall to be moved in the respective application classes
   def CleanUp
 	allGroups.exec("killall ITGRecv >/dev/null 2>&1;")
@@ -561,7 +614,7 @@ class Orbit
 	#set the interfaces down
         @nodes.each do |node|
 		if node.GetType()=="R"
-		 @interfaces.each do |ifn|
+		 node.GetInterfaces().each do |ifn|
 		    self.GetGroupInterface(node, ifn).down
 		  end
 		end
@@ -580,9 +633,11 @@ class Orbit
 	    if (@setradios and ifn.IsWifi())
 		if (ifn.GetMode()=="adhoc")
 		  self.GetGroupInterface(node,ifn).mode="adhoc"
-		elsif (ifn.GetMode())="master")
+		elsif (ifn.GetMode()=="master")
 		  self.GetGroupInterface(node,ifn).mode="master"
-		end  
+		elsif (ifn.GetMode()=="station")
+		  self.GetGroupInterface(node,ifn).mode="managed"
+		end
 
 		self.GetGroupInterface(node,ifn).type="a"
 	    end
@@ -685,6 +740,8 @@ class Orbit
     end
   end
   
+	            
+	            
   # FIXME orbit requires to assign an ip address to node to get the MAC of the interfaces
   def SetIp(node)
        	node.GetInterfaces().each do |ifn|
@@ -795,9 +852,10 @@ class Orbit
     #Experiment specific setup for nodes
     exp.SetUpNodes
     
+	            
     onEvent(:ALL_UP_AND_INSTALLED) do |event|
 	info "Starting stack." 
-	self.StartStack
+	@rstack.StartStack
 	info("Waiting for the network stack to be started")
 	wait(15)
 
@@ -893,6 +951,11 @@ class Orbit
   
   def GetEndHosts()
       return @endHosts
+  end
+	            
+	            
+  def AssignAddress(node, ifn, address)
+	node.exec("ip addr add #{address.ip}/#{address.netmask} dev #{ifn.GetName()}; ifconfig #{ifn.GetName()} up") 	      
   end
 
   #Return the handler to the interface ifn (of all nodes)
@@ -1020,23 +1083,7 @@ class Orbit
     
   end
   
-  class Interface
-    attr_accessor :name, :type
-
-    def initialize(name, type)
-      @name=name
-      @type=type
-    end
-    
-    def IsEthernet()
-      return @type=="Ether"
-    end
-    
-    def IsWifi()
-      return @type.include?("Wifi")
-    end
-    
-  end
+ 
   
   #Basic experiment class that installs and manages applications to be executed
   #it is meant to manage the experiment at the application level.

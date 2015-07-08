@@ -1,4 +1,4 @@
-require './orbit.rb'
+require 'core/orbit.rb'
 require './utils.rb'
 
 #File which includes helpers for installing applications on nodes

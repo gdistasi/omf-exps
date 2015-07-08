@@ -1,13 +1,12 @@
+
 require 'utils/utils.rb'
-require 'node.rb'
+require 'core/node.rb'
 require 'nokogiri'
 
 
-class Orbit
-
 # describe an experimental topology  
-  
-class Topology
+class Orbit
+  class Topology
 
 	attr_accessor :nodes, :senders, :receivers, :links, :wired_links, :endHosts
 
@@ -80,6 +79,11 @@ class Topology
 		return @killedLinks
 
 	end
+	
+	
+	def GetWiredLinks()
+	  return @wired_links
+	end
 
 	#add the links specified in a config file
 	#Each line of the file has the following format: L idNode1 idNode2 rate
@@ -142,7 +146,7 @@ class Topology
 	end
 
 	
-  def include?(x,y)
+	def include?(x,y)
     inc=false
     @nodes.each do |node|
 	if node.x==x and node.y==y
@@ -154,7 +158,7 @@ class Topology
   end
 	
   #create the topo file to be used with omf to load images on nodes
-  def CreateTopoFile
+	def CreateTopoFile
     topo52="topo52"
     topo53="topo53"
     
@@ -193,16 +197,82 @@ class Topology
   end
 	
 	private
+	
+	def ReadTopoXml(topoxml)
+	  
+		    doc = Nokogiri::XML(IO.readlines(topoxml))
+		    
+		    doc.xpath('/topology/node').each do |node|
+		      
+		      name = node.at_xpath('@name').content
+		      type = node.at_xpath('@type').content
+		      
+		      x = node.at_xpath('@x').content
+		      y = node.at_xpath('@y').content
+		      attributes = node.at_xpath('attributes').content
 
+		      
+		      if (x!="" and y!= "")
+			nodeObj = @orbit.AddNode(x, y)
+		      else
+			nodeObj = Node.new(name)
+		      end
+		      
+		      
+		      
+		      node.at_xpath('interface').each do |ifn|
+			channel = node.at_xpath('channel').content
+			type = node.at_xpath('type').content
+			
+			if type=="WifiInterface" then
+ 			mode = node.at_xpath('mode').content	
+			  ifn=WifiInterface.new(name, mode)
+			  ifn.SetChannel(channel)
+			  node.AddInterface(ifn)			
+			else
+			  abort("Type of interface not supported: #{type}")
+			end
+			
+			
+		      end
+		    
+		      @nodes << node
+		      
+		      if (attributes.include?("sender") or attributes.include?("source"))
+			 @senders << node
+		      elsif (attributes.include?("receivers") or attributes.include?("destination"))
+			 @receivers << node
+		      end
+		      
+		    end
+		    
+		      doc.xpath('//link').each do |link|
+			from = link.at_xpath('from').content
+			to = link.at_xpath('to').content
+			type = link.at_xpath('@type')
+			if (type=="wired")
+			  @wired_links << Link.new(x,y, @rate)
+			else
+			  channel = link.at_xpath('channel')
+			  @links << Link.new(x,y, @rate, channel)
+			  
+			end
+			
+		      end
+	      
+		  end	  
+	
   	# read the topology from a file
 	# the file contains the list of nodes, their position and the number of interfaces they own
 	# the format of each line is: A|G|R xpos ypos numRadios
 	# A stands for aggregator device; G stands for gateway device; R stands for router
   	def ReadTopo(topo)
 
+	  
+	  if not topo.include?(".xml")
+
     		file=File.new(topo, "r")
 
-		if (not topo.include?(".xml"))
 		
 		  # reading nodes information
 		  while (line = file.gets)
@@ -215,12 +285,13 @@ class Topology
       
 			if a.size()>0
 
-				if (@orbit!=nil and not @dontcreate)				
+				#if (@orbit!=nil and not @dontcreate)				
 					node = 	@orbit.AddNode(a[0], Integer(a[1]), Integer(a[2]), Integer(a[3]) )
-				else
-					puts "Adding node #{@nodes.size}."
-					node = Node.new(@nodes.size, a[0], Integer(a[1]), Integer(a[2]), Integer(a[3]))
-				end
+				#else
+				#	puts "Adding node #{@nodes.size}."
+				#	node = Orbit::Topology::Node.new(a[0], Integer(a[1]), Integer(a[2]), Integer(a[3]) )
+				#	node.SetId(@nodes.size)
+				#end
 
 				
 				@nodes << node
@@ -242,34 +313,12 @@ class Topology
 				end
 	
       			end
-
-		  else
-		    
-		    doc = Nokogiri::XML(IO.readlines(topo))
-		    
-		    doc.xpath('//node').each do |node|
-		      
-		      puts "ID   = " + thing.at_xpath('name').content
-		      name = node.at_xpath('name').content
-		      type = node.at_xpath('@type').content
-		      
-		      node.at_xpath('interfaces').each do |ifn|
-			channel = node.at_xpath('channel').content
-			mode = node.at_xpath('mode').content	
-		      end
-			
-		      nodeObj=
-		      
-		    end
-		    
-		    
 		  end
-
-		end    
-
-		file.close
-
-
+	
+		  file.close
+	  else
+		    ReadTopoXml(topo)
+	  end
   end
 
 
@@ -303,39 +352,33 @@ class Topology
   
 	
   
-end
 
-class Link
+  class Link
   
     attr_accessor :from, :to, :quality, :rate
   
-    def initialize(from, to, rate=6, quality=0)
+    def initialize(from, to, rate=6, channel=0)
       @from = from
       @to = to
       @rate = rate
-      @quality = quality
+      @channel = channel
     end
 
 
-  end
+ end
        
-
-  
- class Address
-    
+  class Address
     attr_accessor :ip, :netmask, :interface
-    
     def initialize(ip,netmask,interface)
       @ip=ip
       @netmask=netmask
       @interface=interface
     end
-    
   end
-  
+
+  end
 end
-
-
+  
 if __FILE__ == $0
 
   if ARGV.size<3
@@ -350,6 +393,5 @@ if __FILE__ == $0
   topo.AddLinksInRange(Integer(ARGV[1]))
   
   topo.CreateLinkFile(ARGV[2])
-  
 end
 

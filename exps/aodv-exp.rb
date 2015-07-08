@@ -1,4 +1,4 @@
-require './orbit.rb'
+require 'core/orbit.rb'
 require './apps.rb'
 
 require './loadplanner.rb'

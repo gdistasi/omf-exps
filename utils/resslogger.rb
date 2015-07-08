@@ -1,4 +1,4 @@
-require "./orbit"
+require "core/orbit"
 
 
 class RessLoggerHelper

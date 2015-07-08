@@ -1,4 +1,4 @@
-require './orbit.rb'
+require 'core/orbit.rb'
 
 class RoutingStack
 
@@ -19,7 +19,6 @@ class RoutingStack
   
   #define some properties that can be set from the command line
   def DefProperties
-    defProperty('stabilizeDelay', '', "time to wait for the network to stabilize before starting the experiment")
   end
   
   def InstallStack

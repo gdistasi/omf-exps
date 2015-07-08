@@ -1,6 +1,6 @@
-require './orbit.rb'
-require './apps.rb'
-require './ditg-helper.rb'
+require 'core/orbit.rb'
+require 'core/apps.rb'
+require 'traffic/ditg-helper.rb'
 
 #Allocate a flow between each sender-receiver couple. 
 #It must be created and, when the testbed is ready (after the OMF whenAllInstalled statement), started.
@@ -41,8 +41,8 @@ class SenderReceiverPattern
 
     #get the senders and receivers
     #orbit manages the topology which also specifies the sender and receiver nodes
-    senders=@orbit.GetSenders()
-    receivers=@orbit.GetReceivers()
+    senders=@orbit.GetTopology().GetSenders()
+    receivers=@orbit.GetTopology().GetReceivers()
     
     #helpers used to allocate ITGRecv on receiving nodes 
     itgReceiver=ITGReceiverHelper.new(@orbit)
