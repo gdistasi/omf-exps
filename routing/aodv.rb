@@ -1,6 +1,6 @@
 require 'core/orbit.rb'
-require './apps.rb'
-require './aodv-helper.rb'
+require 'core/apps.rb'
+require 'routing/aodv-helper.rb'
 
 
 class OrbitAodv < Orbit 

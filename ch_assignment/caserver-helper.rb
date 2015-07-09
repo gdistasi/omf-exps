@@ -1,4 +1,3 @@
-illal
 
 $path_caserver="ruby -W0 /usr/local/bin/caserver.rb"
 

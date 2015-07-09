@@ -1,4 +1,4 @@
-require './traffic-generator-helper.rb'
+require 'traffic/traffic-generator-helper.rb'
 
 class ITGDaemonHelper
 

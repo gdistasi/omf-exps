@@ -1,6 +1,4 @@
   
-
-
 class Flow
        
       attr_accessor :bitrate, :start, :stop, :sender, :receiver, :itgRecv

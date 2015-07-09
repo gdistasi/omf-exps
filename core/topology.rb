@@ -188,7 +188,6 @@ class Orbit
     
     omf52file.write("]")
     #omf53file.write("\nend")
-    
     omf52file.close
     omf53file.close
     
@@ -199,36 +198,47 @@ class Orbit
 	private
 	
 	def ReadTopoXml(topoxml)
-	  
-		    doc = Nokogiri::XML(IO.readlines(topoxml))
+		    f = File.open(topoxml)
+		    doc = Nokogiri::XML(f)
+		    f.close()
 		    
 		    doc.xpath('/topology/node').each do |node|
 		      
 		      name = node.at_xpath('@name').content
-		      type = node.at_xpath('@type').content
 		      
-		      x = node.at_xpath('@x').content
-		      y = node.at_xpath('@y').content
-		      attributes = node.at_xpath('attributes').content
-
+		      if node.at_xpath('@type')!=nil
+			type = node.at_xpath('@type').content
+		      end
+		         
+		      if node.at_xpath('@x')!=nil and node.at_xpath('@y')!=nil
+			x = node.at_xpath('@x').content
+			y = node.at_xpath('@y').content
+		      end
+			
+		      if node.at_xpath('attributes')!=nil then
+			attributes = node.at_xpath('attributes').content
+		      end
+			
 		      
-		      if (x!="" and y!= "")
-			nodeObj = @orbit.AddNode(x, y)
+		      if (x!=nil and y!=nil)
+			puts "here"
+			nodeObj = @orbit.AddNode(type, x, y)
 		      else
-			nodeObj = Node.new(name)
+			puts "there"
+			nodeObj = @orbit.AddNodeS(name)
 		      end
 		      
 		      
 		      
-		      node.at_xpath('interface').each do |ifn|
-			channel = node.at_xpath('channel').content
-			type = node.at_xpath('type').content
+		      node.xpath('interface').each do |ifn|
+			channel = ifn.at_xpath('channel').content
 			
+			type = ifn.at_xpath('@type').content
 			if type=="WifiInterface" then
- 			mode = node.at_xpath('mode').content	
+ 			mode = ifn.at_xpath('mode').content	
 			  ifn=WifiInterface.new(name, mode)
 			  ifn.SetChannel(channel)
-			  node.AddInterface(ifn)			
+			  nodeObj.AddInterface(ifn)			
 			else
 			  abort("Type of interface not supported: #{type}")
 			end
@@ -236,12 +246,14 @@ class Orbit
 			
 		      end
 		    
-		      @nodes << node
+		      @nodes << nodeObj
 		      
+		      if (attributes!=nil)
 		      if (attributes.include?("sender") or attributes.include?("source"))
-			 @senders << node
-		      elsif (attributes.include?("receivers") or attributes.include?("destination"))
-			 @receivers << node
+			 @senders << nodeObj
+		      elsif (attributes.include?("receiver") or attributes.include?("destination"))
+			 @receivers << nodeObj
+		      end
 		      end
 		      
 		    end
@@ -254,12 +266,9 @@ class Orbit
 			  @wired_links << Link.new(x,y, @rate)
 			else
 			  channel = link.at_xpath('channel')
-			  @links << Link.new(x,y, @rate, channel)
-			  
+			  @links << Link.new(from,to, @rate, channel)
 			end
-			
 		      end
-	      
 		  end	  
 	
   	# read the topology from a file

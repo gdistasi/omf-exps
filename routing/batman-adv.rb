@@ -1,5 +1,5 @@
 require 'core/orbit.rb'
-require './apps.rb'
+require 'core/apps.rb'
 
 
 class OrbitBatmanAdv < Orbit 

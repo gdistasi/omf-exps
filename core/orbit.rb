@@ -454,8 +454,15 @@ l
   end
 	            
 	            
-  def AddNode(name)
-		    node = Node.new(name, @lastId)
+  def AddNodeS(name, type="R")
+		    node = Orbit::Topology::Node.new(@lastId, name)
+		    
+		    if (@env=="ORBIT")
+		      posy=Integer(name.split(".")[0].split("-")[1])
+		      posx=Integer(name.split(".")[0].split("-")[0].split("node")[1])
+		      node.SetPos(posx,posy)
+		    end
+		    
 		    @lastId=@lastId+1
 	            DefineGroup(node)
 	            return node	           
@@ -463,8 +470,9 @@ l
 	            
 	            
   #Add a node to the experiment
-  def AddNode(type, xpos, ypos, numRadios )
-	node = Orbit::Topology::Node.new(@lastId, NodeName(xpos, ypos), type)
+  def AddNode(type, xpos, ypos, numRadios = 0)
+	name = NodeName(xpos, ypos)
+	node = Orbit::Topology::Node.new(@lastId, name, type)
 	node.SetPos(xpos,ypos)
 	@lastId=@lastId+1
 	#let OMF know we have created this node

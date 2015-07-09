@@ -1,7 +1,7 @@
 require 'core/orbit.rb'
-require './routing_stack.rb'
-require './apps.rb'
-require './click.rb'
+require 'routing/routing_stack.rb'
+require 'core/apps.rb'
+require 'utils/click.rb'
 
 class OrbitLayer25 < RoutingStack 
   

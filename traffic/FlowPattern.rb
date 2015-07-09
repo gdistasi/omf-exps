@@ -1,6 +1,6 @@
 require 'core/orbit.rb'
-require './apps.rb'
-require './ditg-helper.rb'
+require 'core/apps.rb'
+require 'traffic/ditg-helper.rb'
 
 #Allocate a number of flows. It start with one flow, and add other flows, one at a time, every duration/numFlows time interval.
 #It must be created and, when the testbed is ready (after the OMF whenAllInstalled statement), started.

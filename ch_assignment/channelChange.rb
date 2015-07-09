@@ -1,6 +1,6 @@
-require "./layer25.rb"
-require "./olsr.rb"
-require "./creass.rb"
+require "routing/layer25.rb"
+require "routing/olsr.rb"
+require "ch_assignmanet/creass.rb"
 
 #Channel reassignment experiment
 

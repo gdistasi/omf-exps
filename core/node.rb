@@ -18,16 +18,6 @@ class Node
       @x=x
       @y=y
     end
-    
-    #def initialize(id, type, x, y, radios=0)
-    #  @x = x
-    #  @y = y
-    #  @numRadios = numRadios
-    #  @type = type
-    #  @id=id
-    #  @addresses = Array.new
-
-    #end
         
     def AddAddress(address, ifn)
       ifn.AddAddress(address)

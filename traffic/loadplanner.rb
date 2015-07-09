@@ -4,7 +4,7 @@
 # Can return the flow to be started at the beginning of each interval in order to get
 # in each interval the desired throughput (the desired throughput is obtained by summing up a certain number of flows)-
 
-require './flow.rb'
+require 'traffic/flow.rb'
 
 class LoadPlanner
 
