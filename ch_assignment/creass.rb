@@ -111,7 +111,7 @@ class ChannelReassignExp < Orbit::Exp
       end
   
       if (property.dirtyfix.to_s=="yes")
-	    @orbit.Node(receiver.id).exec("ip route add to 5.100.0.0/16 dev #{@orbit.GetControlInterface()}")
+	    @orbit.RunOnNode(receiver, "ip route add to 5.100.0.0/16 dev #{@orbit.GetControlInterface()}")
       end
     end
     
@@ -134,7 +134,7 @@ class ChannelReassignExp < Orbit::Exp
 	itgManager=itgManagerHelper.Install(sender.id)
 	@itgManagers.Add(itgManager)
 	if (property.dirtyfix.to_s=="yes")
-	  @orbit.Node(sender.id).exec("ip route add to 5.100.0.0/16 dev #{@orbit.GetControlInterface()}")
+	  @orbit.RunOnNode(sender, "ip route add to 5.100.0.0/16 dev #{@orbit.GetControlInterface()}")
 	end
     end
     
@@ -300,15 +300,15 @@ class ChannelReassignExp < Orbit::Exp
 	    #set the ip address of the two interfaces used to realize the link
 	    #@orbit.Node(@caserver_node.id).net.e0.up
 	    #@orbit.Node(@caserver_node.id).net.e0.ip="192.168.7.#{@caserver_node.id}/24"
-	    @orbit.Node(@caserver_node.id).exec("ifconfig #{@orbit.GetControlInterface}:1 192.168.7.#{@caserver_node.id}/24")
+	    @orbit.RunOnNode(@caserver_node,"ifconfig #{@orbit.GetControlInterface}:1 192.168.7.#{@caserver_node.id}/24")
 	    #@orbit.Node(@receiver.id).net.e0.up
 	    #@orbit.Node(@receiver.id).net.e0.ip="192.168.7.#{@receiver.id}/24"
-	    @orbit.Node(@receiver.id).exec("ifconfig #{@orbit.GetControlInterface}:1 192.168.7.#{@receiver.id}/24")
+	    @orbit.RunOnNode(@receiver,"ifconfig #{@orbit.GetControlInterface}:1 192.168.7.#{@receiver.id}/24")
 	    
 	    #add a routing rule to the external node to reach the mesh network through receivers[0]	
 	    #The control network is used to make the link
-	    @orbit.Node(@caserver_id).exec("ip route del to #{@orbit.GetSubnet}")
-	    @orbit.Node(@caserver_id).exec("ip route add to #{@orbit.GetSubnet} via 192.168.7.#{@receiver.id}")
+	    @orbit.RunOnNode(@caserver_node,"ip route del to #{@orbit.GetSubnet}")
+	    @orbit.RunOnNode(@caserver_node,"ip route add to #{@orbit.GetSubnet} via 192.168.7.#{@receiver.id}")
 	    
 	    #@orbit.Node(@caserver_id).exec("ip route add to #{@orbit.GetSubnet} via #{@orbit.GetControlIp(@receiver)}")
 
@@ -316,8 +316,8 @@ class ChannelReassignExp < Orbit::Exp
     	    #add a routing rule to mesh nodes to reach the externel node through @receivers[0]
     	    @orbit.GetNodes().each do |n|
 		if (n.id!=@receiver.id)
-	    	    	@orbit.Node(n.id).exec("ip route del to 192.168.7.#{@caserver_node.id} ")
-	    	    	@orbit.Node(n.id).exec("ip route add to 192.168.7.#{@caserver_node.id} via #{@orbit.GetIpFromId(@receiver.id)} ")
+	    	    	@orbit.RunOnNode(n, "ip route del to 192.168.7.#{@caserver_node.id} ")
+	    	    	@orbit.RunOnNode(n, "ip route add to 192.168.7.#{@caserver_node.id} via #{@orbit.GetIpFromId(@receiver.id)} ")
 			#@orbit.Node(n.id).exec("ip route add to #{@orbit.GetControlIp(@caserver_node)} via #{@orbit.GetIpFromId(@receiver.id)} ")
 			#@orbit.Node(n.id).net.e0.route({:op => 'add', :net => '10.42.0.0', 
                 	#:gw => '10.40.0.20', :mask => '255.255.0.0'}
@@ -337,10 +337,10 @@ class ChannelReassignExp < Orbit::Exp
       @orbit.GetNodes().each do |node|
 	if property.arpFilter.to_s=="yes"
 	  @orbit.Log("Enabling arp_ignore (==1) on node #{node.id}")
-	  @orbit.Node(node.id).exec("sysctl -w net.ipv4.conf.all.arp_ignore=1")
+	  @orbit.RunOnNode(node,"sysctl -w net.ipv4.conf.all.arp_ignore=1")
 	else
 	  @orbit.Log("Disabling arp_ignore (==0) on node #{node.id}")
-	  @orbit.Node(node.id).exec("sysctl -w net.ipv4.conf.all.arp_ignore=0")
+	  @orbit.RunOnNode(node, "sysctl -w net.ipv4.conf.all.arp_ignore=0")
 	end
       end	
     
@@ -404,7 +404,7 @@ class ChannelReassignExp < Orbit::Exp
 	#  end
 	#end
 	nn.each do |node|
-	  @orbit.Node(node.id).exec("iptables -A INPUT -p tcp --tcp-flags RST RST -j DROP")
+	  @orbit.RunOnNode(node,"iptables -A INPUT -p tcp --tcp-flags RST RST -j DROP")
 	end
     end
     
@@ -461,7 +461,7 @@ class ChannelReassignExp < Orbit::Exp
     	    itgRecv=FindITGRecv(flow.receiver.id, proto)
 	    cmd=MakeDITGCmdLine(flow, itgRecv, 500, proto)
 	    logF="/tmp/itgSenderLog-#{proto}-#{flow.sender.id}-#{flow.receiver.id}"
-	    @orbit.Node(flow.sender.id).exec("#{cmd} >#{logF} 2>&1")
+	    @orbit.RunOnNode(flow.sender, "#{cmd} >#{logF} 2>&1")
 	  end
 	  
 	    new_demands << flow.GetBitrateMbits
@@ -527,7 +527,7 @@ class ChannelReassignExp < Orbit::Exp
     
     if property.avoidTcpRst.to_s=="yes"
 	nn.each do |node|
-	  @orbit.Node(node.id).exec("iptables -D INPUT -p tcp --tcp-flags RST RST -j DROP")
+	  @orbit.RunOnNode(node,"iptables -D INPUT -p tcp --tcp-flags RST RST -j DROP")
 	end
     end
       

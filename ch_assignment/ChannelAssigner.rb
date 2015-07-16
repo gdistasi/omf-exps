@@ -109,16 +109,16 @@ class ChannelAssigner
 	    #set the ip address of the two interfaces used to realize the link
 	    #@orbit.Node(@caserver_node.id).net.e0.up
 	    #@orbit.Node(@caserver_node.id).net.e0.ip="192.168.7.#{@caserver_node.id}/24"
-	    @orbit.Node(@caserver_node.id).exec("ifconfig #{@orbit.GetControlInterface}:1 192.168.7.#{@caserver_node.id}/24")
+	    @orbit.RunOnNode(@caserver_node.id,"ifconfig #{@orbit.GetControlInterface}:1 192.168.7.#{@caserver_node.id}/24")
 	    #@orbit.Node(@receiver.id).net.e0.up
 	    #@orbit.Node(@receiver.id).net.e0.ip="192.168.7.#{@receiver.id}/24"
-	    @orbit.Node(@receiver.id).exec("ifconfig #{@orbit.GetControlInterface}:1 192.168.7.#{@receiver.id}/24")
+	    @orbit.RunOnNode(@receiver.id,"ifconfig #{@orbit.GetControlInterface}:1 192.168.7.#{@receiver.id}/24")
 	    
 
 	    #add a routing rule to the external node to reach the mesh network through receivers[0]	
 	    #The control network is used to make the link
-	    @orbit.Node(@caserver_id).exec("ip route del to #{@orbit.GetSubnet}")
-	    @orbit.Node(@caserver_id).exec("ip route add to #{@orbit.GetSubnet} via 192.168.7.#{@receiver.id}")
+	    @orbit.RunOnNode(@caserver_id,"ip route del to #{@orbit.GetSubnet}")
+	    @orbit.RunOnNode(@caserver_id,"ip route add to #{@orbit.GetSubnet} via 192.168.7.#{@receiver.id}")
 	    
 	    #@orbit.Node(@caserver_id).exec("ip route add to #{@orbit.GetSubnet} via #{@orbit.GetControlIp(@receiver)}")
 
@@ -126,8 +126,8 @@ class ChannelAssigner
     	    #add a routing rule to mesh nodes to reach the externel node through @receivers[0]
     	    @orbit.GetNodes().each do |n|
 		if (n.id!=@receiver.id)
-	    	    	@orbit.Node(n.id).exec("ip route del to 192.168.7.#{@caserver_node.id} ")
-	    	    	@orbit.Node(n.id).exec("ip route add to 192.168.7.#{@caserver_node.id} via #{@orbit.GetIpFromId(@receiver.id)} ")
+	    	    	@orbit.Node(n.id,"ip route del to 192.168.7.#{@caserver_node.id} ")
+	    	    	@orbit.Node(n.id,"ip route add to 192.168.7.#{@caserver_node.id} via #{@orbit.GetIpFromId(@receiver.id)} ")
 			#@orbit.Node(n.id).exec("ip route add to #{@orbit.GetControlIp(@caserver_node)} via #{@orbit.GetIpFromId(@receiver.id)} ")
 			#@orbit.Node(n.id).net.e0.route({:op => 'add', :net => '10.42.0.0', 
                 	#:gw => '10.40.0.20', :mask => '255.255.0.0'}

@@ -143,7 +143,7 @@ class CAServer < Orbit::Application
 		      strChanges="#{strChanges}\n"
 		    end
 		    #Write the file on the node
-		    @orbit.Node(@node).exec("echo \"#{strChanges}\" > #{tempFile}")
+		    @orbit.RunOnNode(@node,"echo \"#{strChanges}\" > #{tempFile}")
 		end	
 		
                 extraOpt=""

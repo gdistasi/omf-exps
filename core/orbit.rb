@@ -217,6 +217,37 @@ class Orbit
       GetGroupInterface(node, ifn).channel="#{ch}"
   end
   
+  def GetGroupInterface(node, ifn)
+    
+    num=GetNumIfn(GetNumIfn(node,ifn))
+    
+    if (ifn.IsEthernet())
+              if (num==0)
+                ret=Node(node.id).net.e0
+              elsif (num==1)
+                ret=Node(node.id).net.e1
+              else
+                 puts "Error. Could not find interface #{ifn.name}"
+                 exit 1
+              end
+                
+    elsif (ifn.IsWifi())
+              if (num==0 or num==2)
+                ret=Node(node.id).net.w0
+              elsif (num==1 or num == 3)
+                ret=Node(node.id).net.w1
+              else
+                 puts "Error. Could not find interface #{ifn.name}"
+                 exit 1
+              end
+    else
+              puts "Unkown type for interface #{ifn.name}"
+    end
+    
+    return ret
+  
+  end
+  
   def SetChannelsAndRate(node, channels=@channels)
 	i=0
 	
@@ -346,7 +377,7 @@ class Orbit
       if (node.class==String)
 	@nodes_by_name[node].exec(cmd)
       elsif node.class=Orbit::Topology::Node
-	node.exec(cmd)
+	Node(node.id).exec(cmd)
       end
   end
 	            
@@ -666,11 +697,7 @@ class Orbit
   def GetInitialChs()
     @initialChannels
   end
-  
-  #Get a reference to an OMF Node object
-  def Node(node_id)
-    return group("node#{node_id}")
-  end
+
 
   #Define a group associated to this single node
   #each node is associated with a group whose name is "node#{node.id}"
@@ -767,7 +794,7 @@ class Orbit
 		    i=i+1
 		end
 		
-		#self.GetGroupInterface(node, ifn).up
+		self.GetGroupInterface(node, ifn).up
 		
 		
 	end
@@ -1066,6 +1093,14 @@ class Orbit
     
     return ret
   
+     
+    private
+  #Get a reference to an OMF Node object
+  def Node(node_id)
+    return group("node#{node_id}")
+  end
+    
+    
   end
   
 
