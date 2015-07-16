@@ -2,6 +2,7 @@ require 'core/orbit.rb'
 
 class RoutingStack
 
+  
   def initialize()
     self.DefProperties
     @senderApps = Orbit::ApplicationContainer.new
@@ -9,12 +10,12 @@ class RoutingStack
     @stackApps = Orbit::ApplicationContainer.new
   end
 
+  
   def SetOrbit(orbit)
     @orbit=orbit
     #@nodes=orbit.GetNodes()
     #@senders=orbit.GetSenders()
     #@receivers=orbit.GetReceivers()
-    @interfaces=orbit.GetInterfaces()
   end
   
   #define some properties that can be set from the command line

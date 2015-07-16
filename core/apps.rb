@@ -1,5 +1,5 @@
 require 'core/orbit.rb'
-require './utils.rb'
+require 'utils/utils.rb'
 
 #File which includes helpers for installing applications on nodes
 #The Install functions return instances of Orbit::Application

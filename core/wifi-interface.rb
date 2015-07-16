@@ -2,11 +2,10 @@ require "core/interface.rb"
 
 
 class WifiInterface < Interface
-
-  def initialize(name, mode)
-    @name=name
-    @mode=mode #master, station or adhoc
-    @channel=-1
+  
+  #master, station or adhoc
+  def SetMode(mode)
+    @mode=mode
   end
   
   def IsWifi()

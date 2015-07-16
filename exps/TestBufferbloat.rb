@@ -1,6 +1,6 @@
 
 require "routing/static_routing.rb"
-require "ch/assignment/static-channel-assignment.rb"
+require "ch_assignment/static-channel-assignment.rb"
 require "traffic/SenderReceiverPattern.rb"
 
 defProperty('duration', 120, "Overall duration in seconds of the experiment")
@@ -13,7 +13,7 @@ defProperty('demands', "", "comma separated list of initial demands")
 
 
 
-rstack=StaticRouting.new
+rstack=StaticRouting.new("192.168")
 
 orbit=Orbit.new
 
@@ -21,10 +21,6 @@ orbit.SetRoutingStack(rstack)
 
 #ask orbit to set up the radios
 orbit.SetRadios(true)
-
-if (property.range.to_s!="")
-	topo.AddLinksInRange(property.range)
-end
 
 #pass the topology specification to Orbit that will enforce it
 orbit.UseTopo(property.topo)
@@ -35,7 +31,7 @@ class TestNew < Orbit::Exp
 
   def initialize(orbit)
     
-    @cassign=StaticChannelAssigner.new(orbit)
+    @cassign=StaticChannelAssignment.new(orbit)
     
      #@traffic=IncreaseNumFlowsPattern.new(orbit, property.initialDemands, property.protocol, property.numFlows, property.duration, property.biflow.to_s=="yes")
     @traffic=SenderReceiverPattern.new(orbit, property.demands.to_s, property.protocol, property.duration, property.biflow.to_s)

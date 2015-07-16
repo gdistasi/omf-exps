@@ -10,8 +10,8 @@ class Node
       @id=id
       @name=name
       @interfaces = Array.new
-      AddInterface(Interface.new("control"))
-      AddInterface(Interface.new("data"))
+      #AddInterface(Interface.new("control"))
+      #AddInterface(Interface.new("data"))
     end
     
     def SetPos(x,y)
@@ -37,6 +37,10 @@ class Node
     
     def AddInterface(int)
       @interfaces << int
+    end
+    
+    def GetInterfaces
+       @interfaces
     end
     
     def GetId()

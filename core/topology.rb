@@ -80,7 +80,6 @@ class Orbit
 
 	end
 	
-	
 	def GetWiredLinks()
 	  return @wired_links
 	end
@@ -158,7 +157,7 @@ class Orbit
   end
 	
   #create the topo file to be used with omf to load images on nodes
-	def CreateTopoFile
+def CreateTopoFile
     topo52="topo52"
     topo53="topo53"
     
@@ -221,10 +220,8 @@ class Orbit
 			
 		      
 		      if (x!=nil and y!=nil)
-			puts "here"
 			nodeObj = @orbit.AddNode(type, x, y)
 		      else
-			puts "there"
 			nodeObj = @orbit.AddNodeS(name)
 		      end
 		      
@@ -232,13 +229,16 @@ class Orbit
 		      
 		      node.xpath('interface').each do |ifn|
 			channel = ifn.at_xpath('channel').content
-			
 			type = ifn.at_xpath('@type').content
+			
 			if type=="WifiInterface" then
  			mode = ifn.at_xpath('mode').content	
-			  ifn=WifiInterface.new(name, mode)
+			  ifn=WifiInterface.new
+
 			  ifn.SetChannel(channel)
-			  nodeObj.AddInterface(ifn)			
+			  ifn.SetMode(mode)
+			  nodeObj.AddInterface(ifn)
+			  ifn.SetName(@orbit.GetRealName(nodeObj,ifn))
 			else
 			  abort("Type of interface not supported: #{type}")
 			end
@@ -263,10 +263,10 @@ class Orbit
 			to = link.at_xpath('to').content
 			type = link.at_xpath('@type')
 			if (type=="wired")
-			  @wired_links << Link.new(x,y, @rate)
+			  @wired_links << Link.new(@orbit.GetNodeByName(x),@orbit.GetNodeByName(y), @rate)
 			else
 			  channel = link.at_xpath('channel')
-			  @links << Link.new(from,to, @rate, channel)
+			  @links << Link.new(@orbit.GetNodeByName(from),@orbit.GetNodeByName(to), @rate, channel)
 			end
 		      end
 		  end	  
@@ -276,7 +276,8 @@ class Orbit
 	# the format of each line is: A|G|R xpos ypos numRadios
 	# A stands for aggregator device; G stands for gateway device; R stands for router
   	def ReadTopo(topo)
-
+	  
+	  topo=topo.to_s
 	  
 	  if not topo.include?(".xml")
 

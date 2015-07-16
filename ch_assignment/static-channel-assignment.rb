@@ -16,8 +16,8 @@ class StaticChannelAssignment
 
   def Start
 
-  @orbit.GetNodes().each |node| do 
-      node.GetInterfaces().each |ifn|
+  @orbit.GetNodes().each do |node| 
+      node.GetInterfaces().each do |ifn|
 	if (ifn.IsWifi()) then
 	      @orbit.AssignChannel(node, ifn, ifn.GetChannel())
 	end

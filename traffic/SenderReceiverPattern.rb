@@ -41,8 +41,8 @@ class SenderReceiverPattern
 
     #get the senders and receivers
     #orbit manages the topology which also specifies the sender and receiver nodes
-    senders=@orbit.GetTopology().GetSenders()
-    receivers=@orbit.GetTopology().GetReceivers()
+    senders=@orbit.GetTopology().senders
+    receivers=@orbit.GetTopology().receivers
     
     #helpers used to allocate ITGRecv on receiving nodes 
     itgReceiver=ITGReceiverHelper.new(@orbit)

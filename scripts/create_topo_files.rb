@@ -11,6 +11,7 @@ topo.CreateTopoFile
 
 if orbit.GetEnv=="ORBIT"
   orbit.CreateTopoOffOrbit(topo)
+  exit(0)
 end
 
 

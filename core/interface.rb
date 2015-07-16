@@ -15,22 +15,38 @@ class Interface
   
     attr_accessor :name
 
+    def initialize()
+      @addresses = Array.new
+    end
     
     def GetName()
       @name
     end
     
-    def initialize(name)
+    def SetName(name)
       @name=name
-      @addresses = Array.new
     end
-    
-    def IsEthernet()
-      return true
-    end
-    
+
     def AddAddress(address)
       @addresses << address
     end
     
+    def IsWifi
+       return false
+    end
+    
+    def IsEthernet
+      return false
+    end
+    
+end
+
+
+class EthernetInterface < Interface
+  
+  def IsEthernet
+    return true
+  end
+  
+  
 end

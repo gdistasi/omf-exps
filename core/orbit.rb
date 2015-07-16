@@ -27,8 +27,6 @@ class Orbit
   
   def initialize()
 
-    @interfaces=Array.new
-        
     @range=1
   
     #true if the radios have to be configured by OMF
@@ -36,10 +34,11 @@ class Orbit
     
     #rate == 0 => autorate
     @rate=0
-    
-    @ifn_mapping = Array.new
-    
+        
     DefProperties()
+    
+    @wifi_interface_mapping = Hash.new
+    @ethernet_interface_mapping = Hash.new
         
     #testbed used (the name of nodes changes depending on the OMF testbed which is used - see NodeName)
     @env=property.env.to_s
@@ -50,6 +49,7 @@ class Orbit
     #@channels  = [ 36, 40, 44, 48, 52, 56, 60 ]
     #@channels  = [ 36,  44, 52, 60 ]
     
+    @nodes_by_name = Hash.new
     
     if (property.channels.to_s!="")
 	@channels = Array.new
@@ -99,13 +99,13 @@ class Orbit
     @gateways = Array.new
     
     
-    if (property.env.to_s.include?("ORBIT") or property.env.to_s=="NEPTUNE" or property.env.to_s=="WILEE")
-	AddInterfaceMapping(0, "wlan0")
-	AddInterfaceMapping(1, "wlan1")
+   if (property.env.to_s.include?("ORBIT") or property.env.to_s=="NEPTUNE" or property.env.to_s=="WILEE")
+	AddWifiInterfaceMapping(0, "wlan0")
+	AddWifiInterfaceMapping(1, "wlan1")
     else
-	AddInterface(Orbit::Interface.new("eth0"))
-	AddInterface(Orbit::Interface.new("eth2"))
-    end
+	AddEthernetInterfaceMapping(0, "eth0")
+	AddEthernetInterfaceMapping(1, "eth2")
+   end
 
     #delete old files
     if (File.exists?("orbit-var.sh"))
@@ -116,6 +116,17 @@ class Orbit
        File.delete("exp-var.sh")
     end
     
+  end
+  
+  def GetIfName(node, ifn)
+    num = GetIfnNum(node, ifn)
+  end
+  
+  def SetRoutingStack(rstack)
+    @rstack=rstack
+    rstack.SetOrbit(self)
+    puts "setting stack"
+    puts @rstack.class
   end
   
   #set the regulatory domain for WiFi interfaces
@@ -132,13 +143,17 @@ class Orbit
   def log(msg)
     info(msg)
   end
-  
-  def AddInterfaceMapping(num, ifn_name)
-    @ifn_mapping[num]=ifn_name
-  end
-  
+
   def GetEnv
     return @env
+  end
+  
+  def AddWifiInterfaceMapping(num, name)
+    @wifi_interface_mapping[num]=name
+  end
+  
+  def AddEthernetInterfaceMapping(num, name)
+    @ethernet_interface_mapping[num]=name
   end
   
   def GetChannels()
@@ -168,6 +183,10 @@ class Orbit
     @topotool=tool
   end
   
+  def GetNodeByName(name)
+    @nodes_by_name[name]
+  end
+  
   def SetRate(rate)
     @rate=rate
   end
@@ -178,10 +197,6 @@ class Orbit
   
   def SetPower(power)
     @power=power
-  end
-  
-  def GetInterfaces
-    @interfaces
   end
   
   def Debug?()
@@ -324,30 +339,42 @@ class Orbit
   def GetTopology()
      return @topology
   end
+  
+  
+  ## node may be either a pointer to a Node object or a node name
+  def RunOnNode(node, cmd)
+      if (node.class==String)
+	@nodes_by_name[node].exec(cmd)
+      elsif node.class=Orbit::Topology::Node
+	node.exec(cmd)
+      end
+  end
 	            
-	            def SetDefaultTxPower(power)
-		      SetPower(power)
-	            end
+  def SetDefaultTxPower(power)
+     SetPower(power)
+  end
 
   #Set the topo to be used in the experiment
   def UseTopo(topo)
+    
+	
+	@topology = Topology.new(topo.to_s, self)
+    
 	#get nodes created by the Topology class
-	@nodes=topo.nodes
+	@nodes=@topology.nodes
 
-	@senders=topo.senders
-	@receivers=topo.receivers
-	@endHosts=topo.endHosts
-	@links=topo.links
-	@wired_links=topo.wired_links
+	@senders=@topology.senders
+	@receivers=@topology.receivers
+	@endHosts=@topology.endHosts
+	@links=@topology.links
+	@wired_links=@topology.wired_links
 	
 	            
 	if (topo.class!=Topology) then
 	  topo=Topology.new(topo, self)
         end
 	            
-	            
-	@topology=topo
-
+	        
 	#define the topology in OMF
       	defTopology('testbed') do |t|   
     
@@ -366,7 +393,6 @@ class Orbit
 
 		# The filename is: 'ID-Graph.dot' where 'ID' is this experiment ID
 		#t.saveGraphToFile()
-l
 	end	
 	
 	
@@ -446,7 +472,7 @@ l
 
 	@nodes.each do |node|
 	  node.GetInterfaces().each do |ifn|
-	    self.GetAllGroupsInterface(ifn).enforce_link =  {:topology => 'testbed', :method => @topotool }
+	    self.GetAllGroupsInterface(node, ifn).enforce_link =  {:topology => 'testbed', :method => @topotool }
 	  end
 	end
 	  
@@ -455,7 +481,7 @@ l
 	            
 	            
   def AddNodeS(name, type="R")
-		    node = Orbit::Topology::Node.new(@lastId, name)
+		    node = Orbit::Topology::Node.new(@lastId, name, type)
 		    
 		    if (@env=="ORBIT")
 		      posy=Integer(name.split(".")[0].split("-")[1])
@@ -465,6 +491,9 @@ l
 		    
 		    @lastId=@lastId+1
 	            DefineGroup(node)
+		    
+		    @nodes_by_name[name]=node
+		    
 	            return node	           
   end
 	            
@@ -477,6 +506,7 @@ l
 	@lastId=@lastId+1
 	#let OMF know we have created this node
 	DefineGroup(node)
+	@nodes_by_name[name]=node
 	return node
   end
 
@@ -582,6 +612,45 @@ l
 		$stderr.print("Don't know the control interface for the testbed #{@env}. Exiting.\n")
 		exit(1)
 	end
+  end
+  
+  
+  def GetRealName(node, ifn)
+    if ifn.IsWifi
+      @wifi_interface_mapping[GetNumIfn(node, ifn)]
+    elsif ifn.IsEthernet
+      @ethernet_interface_mapping[GetNumIfn(node, ifn)]
+    end
+  end
+  
+  def GetNumIfn(node, ifn)
+    
+    num=-1
+    numEth=0
+    numWifi=0
+    
+    node.GetInterfaces.each do |i|
+		
+		if i==ifn
+		  if i.IsEthernet
+		    num=numEth
+		  elsif i.IsWifi
+		    num=numWifi
+		  else
+		    throw "Num interface not found!"
+		  end
+		  break
+		end
+		
+		if i.IsEthernet
+		  numEth=numEth+1
+		elsif i.IsWifi
+		  numWifi=numWifi+1
+		end
+    end
+	     
+   return num
+    
   end
 
  
@@ -709,12 +778,7 @@ l
      if (@power!=nil and @setradios)
 	node.GetInterfaces().each do |ifn|
 	     if ifn.IsWifi()
-	      if ifn.type.include?("Atheros")
-	        real_name="ath#{ifn.name[-1,1]}"
-	      else
-	        real_name=ifn.name
-	      end
-			   
+	      real_name=GetRealName(node,ifn)			   
 	      Node(node.id).exec("iwconfig #{real_name} txpower #{@power}dbm")
 	    end
         end
@@ -948,10 +1012,6 @@ l
 	file.close
   end
   
-  #Add an interface to _all_ nodes
-  def AddInterface(interface)
-    @interfaces << interface
-  end
 
   def GetNodes()
 	@nodes
@@ -963,51 +1023,29 @@ l
 	            
 	            
   def AssignAddress(node, ifn, address)
-	node.exec("ip addr add #{address.ip}/#{address.netmask} dev #{ifn.GetName()}; ifconfig #{ifn.GetName()} up") 	      
+	Node(node.id).exec("ip addr add #{address.ip}/#{address.netmask} dev #{ifn.GetName()}; ifconfig #{ifn.GetName()} up") 	      
   end
 
-  #Return the handler to the interface ifn (of all nodes)
-  #the equivalent of allGroups.net.#{interface} of OMF
-  def GetAllGroupsInterface(ifn)
+
+   def GetAllGroupsInterface(node, ifn)
     
-    num=Integer(ifn.name[-1,1])
+    numEth=0
+    numWifi=0
     
-    if (ifn.IsEthernet())
-	      if (num==0)
-		ret=allGroups.net.e0
-	      elsif (num==2)
-		ret=allGroups.net.e1
-	      else
-		 puts "Error. Could not find interface #{ifn.name}"
-		 exit 1
-	      end
-		
-    elsif (ifn.IsWifi())
-	      if (num==0 or num==2)
-		ret=allGroups.net.w0
-	      elsif (num==1 or num==3)
-		ret=allGroups.net.w1
-	      else
-		 puts "Error. Could not find interface #{ifn.name}"
-		 exit 1
-	      end
-    else
-	      puts "Unkown type for interface #{ifn.name}"
+    puts node
+    puts ifn
+    
+    num=GetNumIfn(node,ifn)
+
+     if num==-1 then
+      raise "Interface not found!"
     end
-    
-    return ret
-  
-  end
-  
-  #Same as the previous function but just referred to one node
-  def GetGroupInterface(node, ifn)
-    
-    num=Integer(ifn.name[-1,1])
-    
+      
     if (ifn.IsEthernet())
+	      
 	      if (num==0)
 		ret=Node(node.id).net.e0
-	      elsif (num==2)
+	      elsif (num==1)
 		ret=Node(node.id).net.e1
 	      else
 		 puts "Error. Could not find interface #{ifn.name}"
@@ -1015,21 +1053,21 @@ l
 	      end
 		
     elsif (ifn.IsWifi())
-	      if (num==0 or num==2)
+      
+	      if (num==0)
 		ret=Node(node.id).net.w0
-	      elsif (num==1 or num == 3)
+	      elsif (num==1)
 		ret=Node(node.id).net.w1
 	      else
 		 puts "Error. Could not find interface #{ifn.name}"
 		 exit 1
 	      end
-    else
-	      puts "Unkown type for interface #{ifn.name}"
     end
     
     return ret
   
   end
+  
 
   #Class which identifies an instance of an application
   class Application
