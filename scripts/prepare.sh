@@ -20,7 +20,7 @@ if  ! [[ $ENV ]]; then
 fi
 
 
-export RUBYLIB="/home/gdistasi/omf-tools/"
+. export RUBYLIB="/home/gdistasi/omf-tools/"
 
 DIRA=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 omf-${OMFVER} exec ${DIRA}/create_topo_files.rb -- --topo $1 --env $ENV
@@ -79,6 +79,11 @@ sleep 80
 ./scripts/reboot.sh
 sleep 120
 #./install-madwifitools.sh
+
+
+
+python -m SimpleHTTPServer > http.log 2>&1 &
+
 
 #./scripts/restart-resctl.sh
 

@@ -237,13 +237,13 @@ class Orbit
 		    AssignChannel(node, ifn, ch)
 		    
 		    if (@rate!=0)
-			  @orbit.GetGroupInterface(node, ifn).rate="#{@rate}"
+			  GetGroupInterface(node, ifn).rate="#{@rate}"
 		    end
 
 		                
 		    #Set IBSS if SetAp option is set - after the interface is created
 		    if (property.setAp.to_s!="")
-		      @orbit.GetGroupInterface(node, ifn).ap=property.setAp.to_s
+		      GetGroupInterface(node, ifn).ap=property.setAp.to_s
 		    end
 		    
 		    i=i+1
@@ -706,7 +706,7 @@ class Orbit
   def SetMode(node)
     
      	node.GetInterfaces().each do |ifn|
-            info("Configuring interface #{ifn.name}")
+            info("Configuring interface #{ifn.name} in #{ifn.GetMode()}")
 	    if (@setradios and ifn.IsWifi())
 		if (ifn.GetMode()=="adhoc")
 		  self.GetGroupInterface(node,ifn).mode="adhoc"
