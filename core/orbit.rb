@@ -30,7 +30,7 @@ class Orbit
     @range=1
   
     #true if the radios have to be configured by OMF
-    @setradios=false
+    @setradios=true
     
     #rate == 0 => autorate
     @rate=0
@@ -219,7 +219,7 @@ class Orbit
   
   def GetGroupInterface(node, ifn)
     
-    num=GetNumIfn(GetNumIfn(node,ifn))
+    num=GetNumIfn(node,ifn)
     
     if (ifn.IsEthernet())
               if (num==0)
@@ -253,20 +253,25 @@ class Orbit
 	
      	node.GetInterfaces().each do |ifn|
   
-		if (@imposed_chs!=nil)
-		  ch=@channels[@imposed_chs[i]]
-	    	else  
-		  if (i==0)
-		    ch=@channels[0]
-		  else
-		    ch=@channels[i]
-		  end
-	    	end
+		#if (@imposed_chs!=nil)
+		 # ch=@channels[@imposed_chs[i]]
+	    	#else  
+		#  if (i==0)
+		#    ch=@channels[0]
+		#  else
+		#    ch=@channels[i]
+		#  end
+	    	#end
+	  
+		ch = ifn.GetChannel()
 	    
 		if (@setradios and ifn.IsWifi())
-		  
-		    AssignChannel(node, ifn, ch)
 		    
+		    info ("ASSIGNING CHANNEL #{ch}")  
+		    if (ifn.GetMode()!="station")
+		      AssignChannel(node, ifn, ch)
+		    end
+		      
 		    if (@rate!=0)
 			  GetGroupInterface(node, ifn).rate="#{@rate}"
 		    end
@@ -394,6 +399,8 @@ class Orbit
 	#get nodes created by the Topology class
 	@nodes=@topology.nodes
 
+	puts @nodes.size
+	
 	@senders=@topology.senders
 	@receivers=@topology.receivers
 	@endHosts=@topology.endHosts
@@ -794,7 +801,7 @@ class Orbit
 		    i=i+1
 		end
 		
-		self.GetGroupInterface(node, ifn).up
+		#self.GetGroupInterface(node, ifn).up
 		
 		
 	end
@@ -815,6 +822,7 @@ class Orbit
   
   #Set the network interfaces of nodes (the mesh interface is excluded)
   def SetUpNodes
+    
     @nodes.each do |node|
 
       if node.type=="R" or node.type=="A" or node.type=="G"
@@ -828,7 +836,7 @@ class Orbit
 	SetWifiPower(node)
 
 	SetMtu(node)
-
+	
 	SetIp(node)
 	
 	Node(node.id).exec("sysctl -w net.ipv4.conf.all.send_redirects=0")
@@ -845,7 +853,7 @@ class Orbit
   def SetIp(node)
        	node.GetInterfaces().each do |ifn|
 	  self.GetGroupInterface(node, ifn).ip="1.1.1.1"
-  	  self.GetGroupInterface(node, ifn).up
+  	  #self.GetGroupInterface(node, ifn).up
 	end
   end
 
@@ -882,8 +890,8 @@ class Orbit
 	    @tcpdumpApps.Add(tcpdumpHelper.Install(node.id, ifn.name))
 	  end
 	  ints=Set.new
-	  node.GetAddresses().each do |add|
-	    ints.add(add.interface)
+	  node.GetInterfaces().each do |ifn|
+	    ints.add(GetRealName(node, ifn))
 	  end
 	  
 	  ints.each do |int|
@@ -963,7 +971,7 @@ class Orbit
 	#self.StartStackStatCollection()
 	
 	#Enforcing topology (we need the stack to be started)
-	self.EnforceTopology
+	#self.EnforceTopology
 	
 	info("Waiting the network to stabilize")
 	wait(@stabilizeDelay)
@@ -1094,15 +1102,15 @@ class Orbit
     return ret
   
      
-    private
-  #Get a reference to an OMF Node object
+ 
+    
+  end
+  
+   #Get a reference to an OMF Node object
   def Node(node_id)
     return group("node#{node_id}")
   end
     
-    
-  end
-  
 
   #Class which identifies an instance of an application
   class Application
@@ -1193,7 +1201,7 @@ class Orbit
     def SetUpNodes
       
     end
- 
+    
     
   end
   

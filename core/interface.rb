@@ -31,6 +31,10 @@ class Interface
       @addresses << address
     end
     
+    def GetAddresses()
+      @addresses
+    end
+    
     def IsWifi
        return false
     end

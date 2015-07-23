@@ -16,6 +16,11 @@ class WifiInterface < Interface
     @channel=0
   end
   
+  def GetMode()
+    @mode
+  end
+  
+  
   def GetChannel()
     return @channel
   end

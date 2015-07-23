@@ -18,9 +18,25 @@ class Node
       @x=x
       @y=y
     end
+    
+    def SetType(type)
+      @type=type
+    end
         
     def AddAddress(address, ifn)
       ifn.AddAddress(address)
+    end
+    
+    def GetAddresses()
+      adds=Set.new
+
+      @interfaces.each do |ifn|
+	ifn.GetAddresses().each do |add|
+	  adds.add(add)
+	end
+      end
+      
+      @adds
     end
     
     def AddInterfaces(interf)

@@ -207,6 +207,8 @@ def CreateTopoFile
 		      
 		      if node.at_xpath('@type')!=nil
 			type = node.at_xpath('@type').content
+		      else
+			type = "R"
 		      end
 		         
 		      if node.at_xpath('@x')!=nil and node.at_xpath('@y')!=nil
@@ -223,6 +225,7 @@ def CreateTopoFile
 			nodeObj = @orbit.AddNode(type, x, y)
 		      else
 			nodeObj = @orbit.AddNodeS(name)
+			nodeObj.SetType(type)
 		      end
 		      
 		      
@@ -246,6 +249,7 @@ def CreateTopoFile
 			
 		      end
 		    
+		      info ("adding node")
 		      @nodes << nodeObj
 		      
 		      if (attributes!=nil)
