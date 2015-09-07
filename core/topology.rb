@@ -52,7 +52,7 @@ class Orbit
 		@nodes.each do |nodeA|
 			@nodes.each do |nodeB|
 
-				if nodeA==nodeB
+				if nodeA==nodeBd
 					next
 				end
 
@@ -249,7 +249,7 @@ def CreateTopoFile
 			
 		      end
 		    
-		      info ("adding node")
+		      
 		      @nodes << nodeObj
 		      
 		      if (attributes!=nil)
