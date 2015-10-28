@@ -1,6 +1,7 @@
 require 'core/orbit.rb'
 require 'core/apps.rb'
 require 'traffic/ditg-helper.rb'
+require 'traffic/flow.rb'
 
 #Allocate a flow between each sender-receiver couple. 
 #It must be created and, when the testbed is ready (after the OMF whenAllInstalled statement), started.
@@ -128,7 +129,6 @@ class SenderReceiverPattern
 	i=0
 	@senders.each do |sender|
 	  @receivers.each do |receiver|
-
 	    @protocols.each do |proto|
 	      flow=Flow.new(0, @demands[i%@demands.size], sender, receiver, FindITGRecv(receiver, proto))
 	      flow.SetEnd(@duration)

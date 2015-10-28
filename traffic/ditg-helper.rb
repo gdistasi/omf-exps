@@ -216,7 +216,7 @@ def MakeDITGCmdLine(flow, itgRecv, pktSize, protocol=nil)
     end
     pktPerSec=((flow.bitrate*1024)/(pktSize*8)).to_i
     port=itgRecv.GetFreePort()
-    
+  
     return "ITGSend -a #{flow.receiver.GetAddresses()[0].ip}  -rp #{port} -Sdp #{itgRecv.GetSigChannelPort()} -T #{protocol} -t #{(flow.stop-flow.start)*1000} -d #{flow.start} -C #{pktPerSec} -c #{pktSize} -j 0"
 end  
   

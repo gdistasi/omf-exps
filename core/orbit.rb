@@ -264,7 +264,7 @@ class Orbit
 	    	#end
 	  
 		ch = ifn.GetChannel()
-	    
+	        info("About to assign channels")
 		if (@setradios and ifn.IsWifi())
 		    
 		    info ("ASSIGNING CHANNEL #{ch}")  
@@ -393,6 +393,10 @@ class Orbit
   #Set the topo to be used in the experiment
   def UseTopo(topo)
     
+    
+    	#if (topo.class!=Topology.class) then
+	#  topo=Topology.new(topo, self)
+        #end
 	
 	@topology = Topology.new(topo.to_s, self)
     
@@ -408,9 +412,7 @@ class Orbit
 	@wired_links=@topology.wired_links
 	
 	            
-	if (topo.class!=Topology) then
-	  topo=Topology.new(topo, self)
-        end
+
 	            
 	        
 	#define the topology in OMF
@@ -424,7 +426,7 @@ class Orbit
 		        puts "Adding link"
 			t.addLink("node#{link.from.id}", "node#{link.to.id}", {:emulationTool => @topotool, :state => :up} )
 		end
-		topo.LinksToRemove.each do |link|
+		@topology.LinksToRemove.each do |link|
 		        puts "Removing link"
 			t.addLink("node#{link.from.id}", "node#{link.to.id}", {:emulationTool => @topotool, :state => :down} )
 		end
@@ -434,14 +436,14 @@ class Orbit
 	end	
 	
 	
-	topo.receivers.each do |n|
+	@topology.receivers.each do |n|
 	  
 	  if n.type=="G"
 	    @gateways << n
 	  end
 	end
 
-	topo.senders.each do |n|
+	@topology.senders.each do |n|
 	 
 	  if n.type=="A"
 	     @aggregators << n
@@ -726,13 +728,15 @@ class Orbit
         @nodes.each do |node|
 		if node.GetType()=="R"
 		 node.GetInterfaces().each do |ifn|
-		    self.GetGroupInterface(node, ifn).down
+		   # self.GetGroupInterface(node, ifn).down
 		  end
 		end
 		
-		node.GetAddresses().each do |add|
-		  info("Deleting address #{add.ip} from interface #{add.interface} on node #{node.id}")
-		  Node(node.id).exec("ip addr del #{add.ip}/#{add.netmask} dev #{add.interface}")
+		node.GetInterfaces().each do |ifn| 
+		  ifn.GetAddresses().each do |add|
+		    #info("Deleting address #{add.ip} from interface #{add.interface} on node #{node.id}")
+		    Node(node.id).exec("ip addr del #{add.ip}/#{add.netmask} dev #{ifn.GetName()}")
+		  end
 		end
 	end
   end
@@ -740,7 +744,7 @@ class Orbit
   def SetMode(node)
     
      	node.GetInterfaces().each do |ifn|
-            info("Configuring interface #{ifn.name} in #{ifn.GetMode()}")
+            info("Configuring interface #{ifn.name} on node #{node.name} in #{ifn.GetMode()}")
 	    if (@setradios and ifn.IsWifi())
 		if (ifn.GetMode()=="adhoc")
 		  self.GetGroupInterface(node,ifn).mode="adhoc"
@@ -1058,7 +1062,7 @@ class Orbit
 	            
 	            
   def AssignAddress(node, ifn, address)
-	Node(node.id).exec("ip addr add #{address.ip}/#{address.netmask} dev #{ifn.GetName()}; ifconfig #{ifn.GetName()} up") 	      
+	Node(node.id).exec("ip addr add #{address.ip}/#{address.netmask} dev #{ifn.GetName()}; ifconfig #{ifn.GetName()} up") 	     
   end
 
 

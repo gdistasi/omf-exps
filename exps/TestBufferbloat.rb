@@ -27,14 +27,22 @@ orbit.UseTopo(property.topo)
 
 orbit.SetDefaultTxPower(15)
 
+
+
 class TestNew < Orbit::Exp
 
   def initialize(orbit)
     
-    @cassign=StaticChannelAssignment.new(orbit)
+    #@cassign=StaticChannelAssignment.new(orbit)
+    
+    if property.demands.to_s=="" then
+	demands="100"
+    else
+        demands=property.demands.to_s
+    end
     
      #@traffic=IncreaseNumFlowsPattern.new(orbit, property.initialDemands, property.protocol, property.numFlows, property.duration, property.biflow.to_s=="yes")
-    @traffic=SenderReceiverPattern.new(orbit, property.demands.to_s, property.protocol, property.duration, property.biflow.to_s)
+    @traffic=SenderReceiverPattern.new(orbit, demands, property.protocol, property.duration, property.biflow.to_s)
     @orbit=orbit
   
   end
@@ -63,9 +71,9 @@ class TestNew < Orbit::Exp
   end
   
   def Start
-    @cassign.Start
-    info("Wait for channel assignment to complete")
-    wait(10)
+    #@cassign.Start
+    #info("Wait for channel assignment to complete")
+    #wait(10)
     if (property.extraDelay!=0)
       info("Waiting additional #{property.extraDelay}s as requested.")
       wait(property.extraDelay)

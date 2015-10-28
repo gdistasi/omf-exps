@@ -52,7 +52,7 @@ class Orbit
 		@nodes.each do |nodeA|
 			@nodes.each do |nodeB|
 
-				if nodeA==nodeBd
+				if nodeA==nodeB
 					next
 				end
 
@@ -202,7 +202,7 @@ def CreateTopoFile
 		    f.close()
 		    
 		    doc.xpath('/topology/node').each do |node|
-		      
+		      		      
 		      name = node.at_xpath('@name').content
 		      
 		      if node.at_xpath('@type')!=nil
@@ -223,9 +223,11 @@ def CreateTopoFile
 		      
 		      if (x!=nil and y!=nil)
 			nodeObj = @orbit.AddNode(type, x, y)
+			#info("Adding node: #{x} #{y}")
 		      else
 			nodeObj = @orbit.AddNodeS(name)
 			nodeObj.SetType(type)
+			#			info("Adding node: #{name}")
 		      end
 		      
 		      
@@ -237,7 +239,7 @@ def CreateTopoFile
 			if type=="WifiInterface" then
  			mode = ifn.at_xpath('mode').content	
 			  ifn=WifiInterface.new
-
+			  #info("Setting channel to #{channel} on node #{nodeObj.name}")
 			  ifn.SetChannel(channel)
 			  ifn.SetMode(mode)
 			  nodeObj.AddInterface(ifn)
@@ -280,7 +282,6 @@ def CreateTopoFile
 	# the format of each line is: A|G|R xpos ypos numRadios
 	# A stands for aggregator device; G stands for gateway device; R stands for router
   	def ReadTopo(topo)
-	  
 	  topo=topo.to_s
 	  
 	  if not topo.include?(".xml")

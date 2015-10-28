@@ -18,7 +18,7 @@ class StaticRouting < RoutingStack
     @orbit.GetNodes().each do |node|  
       node.GetInterfaces().each do |ifn| 
 	if (ifn.IsWifi()) then
-	      address=Address.new("#{@prefix}.#{ifn.GetChannel()}.#{node.GetId()}",24)
+	      address=Address.new("#{@prefix}.#{ifn.GetChannel()}.#{node.GetId()+1}",24)
 	      ifn.AddAddress(address)
 	      @orbit.AssignAddress(node, ifn, address)
 	end

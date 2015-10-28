@@ -20,7 +20,7 @@ if  ! [[ $ENV ]]; then
 fi
 
 
-. export RUBYLIB="/home/gdistasi/omf-tools/"
+export RUBYLIB="/home/gdistasi/omf-tools/"
 
 DIRA=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 omf-${OMFVER} exec ${DIRA}/create_topo_files.rb -- --topo $1 --env $ENV
@@ -34,7 +34,10 @@ if [[ $ENV == "ORBIT" ]] || [[ $ENV == ORBIT_SB* ]]; then
 
 
   if [[ $DEBUG ]]; then
-    image="giovanni1-bis-debug.ndz"
+    #image="giovanni1-bis-debug.ndz"
+    #image="gdistasi-node-node8-1.grid.orbit-lab.org-2015-09-24-06-47-16.ndz"
+    #image="gdistasi-node-node4-18.grid.orbit-lab.org-2015-09-25-06-46-50.ndz"
+    image="gdistasi-node-node4-18.grid.orbit-lab.org-2015-09-29-09-04-22.ndz"
   else
     #image="giovanni1-bis.ndz"
     #image="gdistasi-node-node10-12.grid.orbit-lab.org-2012-11-25-18-06-55.ndz" #omf-${OMFVER}-5.3
@@ -46,7 +49,11 @@ if [[ $ENV == "ORBIT" ]] || [[ $ENV == ORBIT_SB* ]]; then
     #image="gdistasi-node-node1-2.sb1.orbit-lab.org-2013-03-06-08-27-17.ndz" #ath5k really updated...
     #image="gdistasi-node-node1-1.sb1.orbit-lab.org-2013-03-06-10-32-16.ndz"
     #image="gdistasi-node-node1-2.sb1.orbit-lab.org-2013-03-07-08-15-39.ndz" #agentCommands patched
-    image="giovanni-new.ndz"
+    #image="giovanni-new.ndz"
+   #image="gdistasi-node-node4-18.grid.orbit-lab.org-2015-09-25-06-46-50.ndz"
+        image="gdistasi-node-node4-18.grid.orbit-lab.org-2015-09-29-09-04-22.ndz"
+
+
   fi
   
 

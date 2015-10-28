@@ -35,8 +35,7 @@ class Node
 	  adds.add(add)
 	end
       end
-      
-      @adds
+      return adds.to_a
     end
     
     def AddInterfaces(interf)
@@ -66,10 +65,6 @@ class Node
     def GetType()
       return type
     end
-    
-    def GetAddresses
-      return @addresses
-   end
    
    def SetRoutingStack(rstack)
       @rstack=rstack
