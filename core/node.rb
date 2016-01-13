@@ -4,12 +4,13 @@ class Topology
   
 class Node
   
-    attr_accessor :id, :x, :y, :radios, :type, :name
+    attr_accessor :id, :x, :y, :radios, :type, :name, :attributes
   
     def initialize(id, name, type="R")
       @id=id
       @name=name
       @interfaces = Array.new
+      @attributes = Array.new
       #AddInterface(Interface.new("control"))
       #AddInterface(Interface.new("data"))
     end
@@ -44,6 +45,20 @@ class Node
     
     def GetControlInterface()
       return @interfaces[0]
+    end
+    
+    def HasAttribute(att)
+      has=false
+      @attributes.each do |a|
+	 if (a==att) then
+	   has=true
+	 end
+      end
+      return has
+    end
+    
+    def AddAttribute(att)
+      @attributes << att
     end
     
     def GetDataInterface()

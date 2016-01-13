@@ -1121,7 +1121,19 @@ class Orbit
     return group("node#{node_id}")
   end
     
-
+  def GetNodesWithAttribute(att)
+    match=Array.new
+    
+    @nodes.each do |node|
+       if node.HasAttribute(att) then
+	 match << node
+       end
+    end
+    
+    match
+    
+  end
+  
   #Class which identifies an instance of an application
   class Application
      attr_accessor :node

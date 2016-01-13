@@ -230,6 +230,11 @@ def CreateTopoFile
 		      
 		      if node.at_xpath('attributes')!=nil then
 			attributes = node.at_xpath('attributes').content
+			
+			attributes.split(":").each do |att|
+			  nodeObj.AddAttribute(att)
+			end
+			
 			if (attributes.include?("sender") or attributes.include?("source"))
 			  @senders << nodeObj
 			elsif (attributes.include?("receiver") or attributes.include?("destination"))

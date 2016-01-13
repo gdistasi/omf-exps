@@ -9,7 +9,9 @@ defProperty('extraDelay', 0, "extra delay before starting assigning channel and 
 defProperty('protocol', "TCP", "protocol to use for traffic generation")
 defProperty('biflow', "no", "set to yes if you want a flow also in the gateway aggregator direction")
 defProperty('demands', "", "comma separated list of initial demands")
-
+defProperty('aqmPolicy', "", "aqm policy to apply to interface")
+defProperty('onFeatures', "", "semicolon separated list of features to apply to interface (e.g. gso)")
+defProperty('offFeatures', "", "semicolon separated list of feature to turn off to interface (e.g. gso)")
 
 
 
@@ -68,6 +70,8 @@ class TestNew < Orbit::Exp
 #     end
 #    end
 
+
+    
   end
   
   def Start
@@ -78,6 +82,24 @@ class TestNew < Orbit::Exp
       info("Waiting additional #{property.extraDelay}s as requested.")
       wait(property.extraDelay)
     end
+    
+    bottNode = @orbit.GetNodesWithAttribute("bottleneck")[0]
+    ifn = "wlan0"
+    
+    if (property.aqmPolicy.to_s!="") then
+      AqmConfigurator conf=AqmConfigurator.new(property.aqmPolicy.to_s,nil)
+      @orbit.RunOnNode(bottNode, conf.ResetCmd(ifn))
+      @orbit.RunOnNode(bottNode, conf.GetCmd(ifn))
+    end
+    
+    iConf=InterfaceConfigurator.new
+    property.onFeatures.to_s.split(":").each do |f|
+            @orbit.RunOnNode(bottNode, iConf.GetCmdFeatureOn(f,ifn))
+    end
+    property.onFeatures.to_s.split(":").each do |f|
+            @orbit.RunOnNode(bottNode, iConf.GetCmdFeatureOff(f,ifn))
+    end
+    
     #@rtloggers.Start
     @traffic.Start
     wait(property.duration)
