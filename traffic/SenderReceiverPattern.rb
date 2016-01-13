@@ -26,7 +26,7 @@ class SenderReceiverPattern
 
     @orbit=orbit
 
-    @biflow=biflow
+    @biflow=biflow=="yes"
     
     if (@biflow)
       file=File.open("exp-var.sh","a")
@@ -125,11 +125,20 @@ class SenderReceiverPattern
     #start the applications
     info("Starting traffic generation.")
     
+        @receiverApps.StartAll
+    info("Waiting for ITGRecv instances to start...")
+    wait(20)
+    @daemons.StartAll
+    @itgManagers.StartAll   
+    
+    
+    
       @protocols.each do |proto| 
 	i=0
 	@senders.each do |sender|
 	  @receivers.each do |receiver|
 	    @protocols.each do |proto|
+	      if (sender==receiver) then next end
 	      flow=Flow.new(0, @demands[i%@demands.size], sender, receiver, FindITGRecv(receiver, proto))
 	      flow.SetEnd(@duration)
 	      info("Starting a flow from #{flow.sender.id} to #{flow.receiver.id}, protocol #{proto}, at #{flow.bitrate} kbps")
@@ -148,9 +157,7 @@ class SenderReceiverPattern
     
     
     
-    @receiverApps.StartAll
-    @daemons.StartAll
-    @itgManagers.StartAll    
+ 
   end
  
 end

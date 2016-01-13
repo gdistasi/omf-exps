@@ -36,7 +36,7 @@ class TestNew < Orbit::Exp
     #@cassign=StaticChannelAssignment.new(orbit)
     
     if property.demands.to_s=="" then
-	demands="100"
+	demands="10000"
     else
         demands=property.demands.to_s
     end

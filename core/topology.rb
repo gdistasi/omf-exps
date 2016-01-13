@@ -216,9 +216,7 @@ def CreateTopoFile
 			y = node.at_xpath('@y').content
 		      end
 			
-		      if node.at_xpath('attributes')!=nil then
-			attributes = node.at_xpath('attributes').content
-		      end
+		
 			
 		      
 		      if (x!=nil and y!=nil)
@@ -230,6 +228,14 @@ def CreateTopoFile
 			#			info("Adding node: #{name}")
 		      end
 		      
+		      if node.at_xpath('attributes')!=nil then
+			attributes = node.at_xpath('attributes').content
+			if (attributes.include?("sender") or attributes.include?("source"))
+			  @senders << nodeObj
+			elsif (attributes.include?("receiver") or attributes.include?("destination"))
+			  @receivers << nodeObj
+			end		      
+		      end
 		      
 		      
 		      node.xpath('interface').each do |ifn|
@@ -254,13 +260,6 @@ def CreateTopoFile
 		      
 		      @nodes << nodeObj
 		      
-		      if (attributes!=nil)
-		      if (attributes.include?("sender") or attributes.include?("source"))
-			 @senders << nodeObj
-		      elsif (attributes.include?("receiver") or attributes.include?("destination"))
-			 @receivers << nodeObj
-		      end
-		      end
 		      
 		    end
 		    

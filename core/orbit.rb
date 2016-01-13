@@ -170,6 +170,8 @@ class Orbit
     defProperty('startTcpdump', 'no', "set to yes to have Tcpdump started on nodes")
     defProperty('channels', nil, "comma separated list of channels to use")
     defProperty('stabilizeDelay', '', "time to wait for the network to stabilize before starting the experiment")
+    defProperty('wifiMode', '', "wifi mode (e.g. a or n)")
+
 
   end
   
@@ -754,7 +756,11 @@ class Orbit
 		  self.GetGroupInterface(node,ifn).mode="managed"
 		end
 
-		self.GetGroupInterface(node,ifn).type="a"
+		if (property.wifiMode.to_s!="") then
+		  self.GetGroupInterface(node,ifn).type=property.wifiMode.to_s
+		else
+		  self.GetGroupInterface(node,ifn).type="a"
+		end
 	    end
 	end
   end

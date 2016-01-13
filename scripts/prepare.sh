@@ -57,7 +57,7 @@ if [[ $ENV == "ORBIT" ]] || [[ $ENV == ORBIT_SB* ]]; then
       #  image="gdistasi-node-node4-18.grid.orbit-lab.org-2015-09-29-09-04-22.ndz"
 
 
-  fi
+  #fi
   
 
 
@@ -90,6 +90,7 @@ sleep 80
 sleep 120
 #./install-madwifitools.sh
 
+./update_na.sh
 
 
 python -m SimpleHTTPServer > http.log 2>&1 &
