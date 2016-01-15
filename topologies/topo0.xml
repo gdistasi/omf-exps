@@ -1,0 +1,46 @@
+
+
+
+<topology>
+  
+  <node name="node8-1.grid.orbit-lab.org">
+    <attributes>sender</attributes> <!-- comma separated attributes -->
+    <interface type="WifiInterface">
+      <mode>station</mode> <!-- either adhoc, station, master -->
+      <channel>1</channel>
+    </interface>    
+  </node>
+
+  <node name="node12-8.grid.orbit-lab.org">
+    <interface type="WifiInterface">
+      <mode>master</mode> 
+      <channel>1</channel>
+    </interface>
+    <attribute>bottleneck</attribute>
+  </node>
+
+  <node name="node4-18.grid.orbit-lab.org">
+    <attributes>receiver</attributes> <!-- comma separated attributes -->
+    <interface type="WifiInterface">
+      <mode>station</mode> 
+      <channel>1</channel>
+    </interface>    
+  </node>
+
+  <link type="wifi">
+    <from>node8-1.grid.orbit-lab.org</from>
+    <to>node12-8.grid.orbit-lab.org</to>
+    <channel>1</channel>
+  </link>
+  
+  <link type="wifi">
+    <from>node12-8.grid.orbit-lab.org</from>
+    <to>node4-18.grid.orbit-lab.org</to>
+    <channel>1</channel>
+  </link>
+  
+</topology>
+
+
+
+
