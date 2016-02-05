@@ -8,6 +8,9 @@ class Address
     @netmask=netmask
   end
   
+  def to_s
+    return "#{ip}"
+  end
   
 end
 

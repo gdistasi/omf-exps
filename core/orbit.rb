@@ -383,7 +383,7 @@ class Orbit
   def RunOnNode(node, cmd)
       if (node.class==String)
 	@nodes_by_name[node].exec(cmd)
-      elsif node.class=Orbit::Topology::Node
+      elsif node.class==Orbit::Topology::Node
 	Node(node.id).exec(cmd)
       end
   end
@@ -769,7 +769,7 @@ class Orbit
      	node.GetInterfaces().each do |ifn|
 		  #info("Configuring interface #{ifn.name}")
 	    if (@setradios and ifn.IsWifi())
-		self.GetGroupInterface(node,ifn).essid="meshnet"
+		self.GetGroupInterface(node,ifn).essid=ifn.GetEssid()
 	    end
 	end
   end
@@ -800,6 +800,10 @@ class Orbit
 		    
 		    if (@rate!=0)
 			  self.GetGroupInterface(node, ifn).rate="#{@rate}"
+		    end
+		    
+		    if (ifn.GetRate()!=nil)
+			self.GetGroupInterface(node, ifn).rate="#{ifn.GetRate()}"
 		    end
 
 		                
@@ -1122,6 +1126,7 @@ class Orbit
   end
     
   def GetNodesWithAttribute(att)
+    
     match=Array.new
     
     @nodes.each do |node|
@@ -1130,7 +1135,7 @@ class Orbit
        end
     end
     
-    match
+   return match
     
   end
   

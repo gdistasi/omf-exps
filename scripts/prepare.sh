@@ -40,7 +40,7 @@ if [[ $ENV == "ORBIT" ]] || [[ $ENV == ORBIT_SB* ]]; then
     #image="giovanni1-bis-debug.ndz"
     #image="gdistasi-node-node8-1.grid.orbit-lab.org-2015-09-24-06-47-16.ndz"
     #image="gdistasi-node-node4-18.grid.orbit-lab.org-2015-09-25-06-46-50.ndz"
-    image="gdistasi-node-node4-18.grid.orbit-lab.org-2015-09-29-09-04-22.ndz"
+    image="gdistasi-node-node7-10.grid.orbit-lab.org-2016-02-03-11-15-33.ndz"
  # else
     #image="giovanni1-bis.ndz"
     #image="gdistasi-node-node10-12.grid.orbit-lab.org-2012-11-25-18-06-55.ndz" #omf-${OMFVER}-5.3

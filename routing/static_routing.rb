@@ -22,6 +22,13 @@ class StaticRouting < RoutingStack
 	      ifn.AddAddress(address)
 	      @orbit.AssignAddress(node, ifn, address)
 	end
+      
+	if (ifn.IsWifi()) then
+	   if (ifn.GetMode()=="station") then
+	      #@orbit.RunOnNode(node, "ip address del default; ip address add default #{@orbit.GetRealName(node, ifn)}")
+	   end
+	end
+	
       end
     end
     
@@ -30,6 +37,7 @@ class StaticRouting < RoutingStack
 	
     end
     
+   
     
   end
 
