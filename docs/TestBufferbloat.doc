@@ -1,0 +1,36 @@
+
+STEPS
+
+. scripts/env.sh (setta alcune variabili di ambiente, fra le quali RUBYLIB)
+
+ ENV=ORBIT ./scripts/prepare.sh topologies/topoAth9k2.xml (carica sui nodi specificati nel file di topologia xml un'immagine opportunamente predisposta)
+
+La topologia topoAth9k2.xml è la seguente:
+
+CLIENT1 <---- ch 36 --------> AP  <---- ch 48 ------>  CLIENT2 
+
+omf exec exps/TestBufferbloat.rb -- --topo topologies/topoAth9k2.xml --onFeatures gso --aqmPolicy fq_codel --aqmOptions --offFeatures rso --stabilizeDelay 100 --rate 6 --demand 10M (esegue l'esperimento)
+
+Significato delle opzioni:
+
+demand: rate in Mbit/s di un flusso generato da CLIENT1 a CLIENT2
+
+Le  opzioni agiscono tutte sull'interfaccia dell'AP sul canale 48.
+
+onFeatures : le features da attivare attraverso ethtool
+
+offFeatures: le features da disattivare, sempre con ethtool
+
+rate: rate di trasmissione 
+
+aqmPolicy: AQM policy da applicare
+
+aqmPolicyOptions: opzioni per AQM policy
+
+Per capire quali aqmPolicy sono supportate (ed eventualmente aggiungerne) e per capire come vengono interpretate le opzioni, riferirsi ad aqm/...
+aqmPolicyOptions al momento è ignorata. Tua facoltà modificare i file in aqm/
+
+
+L'idea sarebbe di provare diversi rate di trasmissione e diverse aqmPolicy e analizzare i risultati. Quest'ultimi si ottengono alla fine dell'esperimento (log prodotti da ditg principalmente, decodificabili con ITGDec), con il comando:
+
+./scripts/get_results.sh new_directory_for_storing_experiment_results

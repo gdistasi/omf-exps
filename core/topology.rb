@@ -246,6 +246,8 @@ def CreateTopoFile
 		      node.xpath('interface').each do |ifn|
 			channel = ifn.at_xpath('channel').content
 			type = ifn.at_xpath('@type').content
+			essid = ifn.at_xpath('essid').content
+			rate =  ifn.at_xpath('rate').content unless ifn.at_xpath('rate')==nil
 			
 			if type=="WifiInterface" then
  			mode = ifn.at_xpath('mode').content	
@@ -253,6 +255,8 @@ def CreateTopoFile
 			  #info("Setting channel to #{channel} on node #{nodeObj.name}")
 			  ifn.SetChannel(channel)
 			  ifn.SetMode(mode)
+			  ifn.SetEssid(essid)
+			  ifn.SetRate(rate)
 			  nodeObj.AddInterface(ifn)
 			  ifn.SetName(@orbit.GetRealName(nodeObj,ifn))
 			else

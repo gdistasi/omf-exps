@@ -89,9 +89,9 @@ class SenderReceiverPattern
     
 
     senderNodes.each do |sender|
-	#@daemons.Add(itgSenderDaemon.Install(sender.id))
-	#itgManager=itgManagerHelper.Install(sender.id)
-	#@itgManagers.Add(itgManager)
+	@daemons.Add(itgSenderDaemon.Install(sender.id))
+	itgManager=itgManagerHelper.Install(sender.id)
+	@itgManagers.Add(itgManager)
 	if (@dirtyfix)
 	  @orbit.Node(sender.id).exec("ip route add to 5.100.0.0/16 dev #{@orbit.GetControlInterface()}")
 	end
