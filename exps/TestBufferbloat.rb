@@ -112,7 +112,6 @@ class TestNew < Orbit::Exp
     end
 
     @orbit.SetInterfaceRate(bottNode, ifn, property.rate.to_s)
-
     #@rtloggers.Start
     @traffic.Start
     wait(property.duration)
