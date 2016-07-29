@@ -111,7 +111,7 @@ class TestNew < Orbit::Exp
             @orbit.RunOnNode(bottNode, iConf.GetCmdFeatureOff(f,ifn))
     end
 
-    @orbit.SetInterfaceRate(bottNode, ifn, property.rate.to_s)
+    @orbit.EnforceRate(bottNode, ifn, property.rate.to_s)
     #@rtloggers.Start
     @traffic.Start
     wait(property.duration)

@@ -17,8 +17,16 @@ class WifiInterface < Interface
     @channel=channel
   end
   
+  def SetStandard(std)
+     @standard=std 
+  end
+  
   def GetMode()
     @mode
+  end
+  
+  def GetStandard()
+     return @standard 
   end
   
   def SetEssid(essid)
@@ -26,7 +34,7 @@ class WifiInterface < Interface
   end
   
   def GetChannel()
-    return @channel
+    return Integer(@channel)
   end
   
   def SetRate(rate)

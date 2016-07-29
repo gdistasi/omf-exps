@@ -245,7 +245,8 @@ def CreateTopoFile
 		      
 		      node.xpath('interface').each do |ifn|
 			channel = ifn.at_xpath('channel').content
-			type = ifn.at_xpath('@type').content
+			type = ifn.at_xpath('@type').content unless ifn.at_xpath('@type')==nil
+                        standard = ifn.at_xpath('standard').content unless ifn.at_xpath('standard')==nil
 			essid = ifn.at_xpath('essid').content
 			rate =  ifn.at_xpath('rate').content unless ifn.at_xpath('rate')==nil
 			
@@ -256,6 +257,7 @@ def CreateTopoFile
 			  ifn.SetChannel(channel)
 			  ifn.SetMode(mode)
 			  ifn.SetEssid(essid)
+                          ifn.SetStandard(standard)
 			  ifn.SetRate(rate)
 			  nodeObj.AddInterface(ifn)
 			  ifn.SetName(@orbit.GetRealName(nodeObj,ifn))

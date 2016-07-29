@@ -170,9 +170,7 @@ class Orbit
     defProperty('startTcpdump', 'no', "set to yes to have Tcpdump started on nodes")
     defProperty('channels', nil, "comma separated list of channels to use")
     defProperty('stabilizeDelay', '', "time to wait for the network to stabilize before starting the experiment")
-    defProperty('wifiMode', '', "wifi mode (e.g. a or n)")
-
-
+    defProperty('wifiStandard', '', "wifi standard (e.g. a or n)")
   end
   
   #Set to yes if this class has to set the radios (in case the radios are WiFi)
@@ -250,7 +248,37 @@ class Orbit
   
   end
   
-  def SetChannelsAndRate(node, channels=@channels)
+  
+  def EnforceRate(node, ifn_real_name, rate)
+
+      if (ifn.GetStandard()!="a")
+                 warn("Setting the rate is not supported for #{ifn.GetStandard} interfaces!")
+                 return
+      end
+              
+      if (ifn.GetChannel()<36)                 
+                Node(node.id).exec("iw dev #{ifn_real_name} set bitrates legacy-2.4 #{ifn.GetRate}")
+      else
+                Node(node.id).exec("iw dev #{ifn_real_name} set bitrates legacy-5 #{ifn.GetRate}")
+      end
+      
+  end
+  
+  
+  def EnforceRates(node)
+      
+      if (@setradios)
+	node.GetInterfaces().each do |ifn|
+            if ifn.IsWifi() and ifn.GetRate()!=""
+                real_name=GetRealName(node,ifn)	
+                EnforceRate(node, ifn, ifn.GetRate())
+            end
+        end
+     end
+  end
+  
+  
+  def EnforceChannels(node, channels=@channels)
 	i=0
 	
      	node.GetInterfaces().each do |ifn|
@@ -269,14 +297,15 @@ class Orbit
 	        info("About to assign channels")
 		if (@setradios and ifn.IsWifi())
 		    
-		    info ("ASSIGNING CHANNEL #{ch}")  
 		    if (ifn.GetMode()!="station")
+                    info ("ASSIGNING CHANNEL #{ch} to interface #{ifn}")  
+
 		      AssignChannel(node, ifn, ch)
 		    end
 		      
-		    if (@rate!=0)
-			  GetGroupInterface(node, ifn).rate="#{@rate}"
-		    end
+		    #if (@rate!=0)
+			#  GetGroupInterface(node, ifn).rate="#{@rate}"
+		    #end
 
 		                
 		    #Set IBSS if SetAp option is set - after the interface is created
@@ -640,10 +669,6 @@ class Orbit
     end
   end
 
-  def SetInterfaceRate(node, interfaceRealName, rate)
-       RunOnNode(node, "iwconfig #{interfaceRealName} rate #{rate.to_s}")
-  end
-  
   #function the get the control interface of nodesl
   def GetControlInterface()
 	if (@env.include?("ORBIT"))
@@ -760,9 +785,11 @@ class Orbit
 		  self.GetGroupInterface(node,ifn).mode="managed"
 		end
 
-		if (property.wifiMode.to_s!="") then
+		if (property.wifiStandard.to_s!="") then
 		  self.GetGroupInterface(node,ifn).type=property.wifiMode.to_s
-		else
+                elsif (ifn.GetStandard()!="")
+                    self.GetGroupInterface(node,ifn).type=ifn.GetStandard()
+                else
 		  self.GetGroupInterface(node,ifn).type="a"
 		end
 	    end
@@ -783,47 +810,47 @@ class Orbit
       @rstack.SetMtu(node)
   end
   
-  def SetChannelsAndRate(node, channels=@channels)
-	i=0
+  #def SetChannelsAndRate(node, channels=@channels)
+#	i=0
 	
-     	node.GetInterfaces().each do |ifn|
-  
-		if (@imposed_chs!=nil)
-		  ch=channels[@imposed_chs[i]]
-	    	else  
-		  if (i==0)
-		    ch=channels[0]
-		  else
-		    ch=channels[i]
-		  end
-	    	end
-	    
-		if (@setradios and ifn.IsWifi())
-		  
-		    self.GetGroupInterface(node, ifn).channel="#{ch}"
-		    
-		    if (@rate!=0)
-			  self.GetGroupInterface(node, ifn).rate="#{@rate}"
-		    end
-		    
-		    if (ifn.GetRate()!=nil)
-			self.GetGroupInterface(node, ifn).rate="#{ifn.GetRate()}"
-		    end
-
-		                
-		    #Set IBSS if SetAp option is set - after the interface is created
-		    if (property.setAp.to_s!="")
-		      self.GetGroupInterface(node, ifn).ap=property.setAp.to_s
-		    end
-		    
-		    i=i+1
-		end
+ #    	node.GetInterfaces().each do |ifn|
+  #
+#		if (@imposed_chs!=nil)
+#		  ch=channels[@imposed_chs[i]]
+#	    	else  
+#		  if (i==0)
+#		    ch=channels[0]
+#		  else
+#		    ch=channels[i]
+#		  end
+#	    	end
+#	    
+#		if (@setradios and ifn.IsWifi())
+#		  
+#		    self.GetGroupInterface(node, ifn).channel="#{ch}"
+#		    
+#		    if (@rate!=0)
+#			  self.GetGroupInterface(node, ifn).rate="#{@rate}"
+#		    end
+#		    
+#		    if (ifn.GetRate()!=nil)
+#			self.GetGroupInterface(node, ifn).rate="#{ifn.GetRate()}"
+#		    end
+#
+#		                
+#		    #Set IBSS if SetAp option is set - after the interface is created
+#		    if (property.setAp.to_s!="")
+#		      self.GetGroupInterface(node, ifn).ap=property.setAp.to_s
+#		    end
+#		    
+#		    i=i+1
+#		end
 		
 		#self.GetGroupInterface(node, ifn).up
 		
 		
-	end
-  end
+#	end
+ # end
 
   def SetWifiPower(node)
     	
@@ -847,7 +874,7 @@ class Orbit
       	
 	SetMode(node)
 
-	SetChannelsAndRate(node)
+	EnforceChannels(node)
 	
 	SetEssid(node) # after this stage, with omf-5.4 the wlan interface is created.
 	
@@ -858,6 +885,8 @@ class Orbit
 	SetIp(node)
 	
 	Node(node.id).exec("sysctl -w net.ipv4.conf.all.send_redirects=0")
+        
+        EnforceRates(node)
 	
       end
       #final settings
