@@ -88,8 +88,9 @@ class ITGManager < Orbit::Application
     end
 
     pktSize=500
-    pktPerSec=((flow.bitrate*1024)/(pktSize*8)).to_i
+    pktPerSec=((Float(flow.bitrate)*1024)/(pktSize*8)).to_i
     
+    puts "pktPerSec #{pktPerSec} - rate #{flow.bitrate}"
     
     port=itgRecv.GetFreePort()
     cmd="-a #{flow.receiver.GetAddresses()[0].ip}  -rp #{port} -Sdp #{itgRecv.GetSigChannelPort()} -T #{@protocol} -t #{(flow.stop-flow.start)*1000} -C #{pktPerSec} -c #{pktSize} -j 0"
