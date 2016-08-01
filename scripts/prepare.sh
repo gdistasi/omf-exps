@@ -73,11 +73,9 @@ if [[ $ENV == "ORBIT" ]] || [[ $ENV == ORBIT_SB* ]]; then
 
   #omf-${OMFVER}-5.2 load `cat topo52` giovanni2.ndz
 
-  sleep 10
-
   #omf-${OMFVER}-5.3 tell -a offh -t `cat topo53`
 
-  sleep 20
+  sleep 30
 
   while omf-${OMFVER} tell -a on -t `cat topo53` | grep ServiceException; do
     sleep 10
@@ -90,7 +88,7 @@ sleep 80
 sleep 120
 #./install-madwifitools.sh
 
-./update_na.sh
+#./update_na.sh
 
 
 python -m SimpleHTTPServer > http.log 2>&1 &

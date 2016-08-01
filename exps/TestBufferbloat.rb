@@ -3,6 +3,7 @@ require "routing/static_routing.rb"
 require "ch_assignment/static-channel-assignment.rb"
 require "traffic/SenderReceiverPattern.rb"
 require "aqm/aqm.rb"
+require "routing/olsr.rb"
 
 defProperty('duration', 120, "Overall duration in seconds of the experiment")
 defProperty('topo', 'topos/topo0', "topology to use")
@@ -15,10 +16,16 @@ defProperty('aqmPolicyOptions', "", "option to apply to aqm policy")
 defProperty('onFeatures', "", "semicolon separated list of features to apply to interface (e.g. gso)")
 defProperty('offFeatures', "", "semicolon separated list of feature to turn off to interface (e.g. gso)")
 defProperty('rate',"", "rate to apply to bottleneck interface")
+defProperty('withOlsr',"no", "Set to yes if Olsrd has to manage routing")
+defProperty('rttm',"no", "Set to yes if flows have to go to the destinations and then come back at the senders (to measure RTTs)")
 
-
-rstack=StaticRouting.new("192.168")
-
+    
+if (property.withOlsr.to_s=="yes")
+  rstack=OrbitOlsr.new("192.168")
+else
+  rstack=StaticRouting.new("192.168")
+end
+	
 orbit=Orbit.new
 
 orbit.SetRoutingStack(rstack)
@@ -31,9 +38,7 @@ orbit.UseTopo(property.topo)
 
 orbit.SetDefaultTxPower(15)
 
-    
-
-
+   
 class TestNew < Orbit::Exp
 
   def initialize(orbit)
@@ -48,6 +53,11 @@ class TestNew < Orbit::Exp
     
      #@traffic=IncreaseNumFlowsPattern.new(orbit, property.initialDemands, property.protocol, property.numFlows, property.duration, property.biflow.to_s=="yes")
     @traffic=SenderReceiverPattern.new(orbit, demands, property.protocol, property.duration, property.biflow.to_s)
+    
+    if (property.rttm.to_s=="yes")
+      @traffic.TurnRttmOn()
+    end
+      
     @orbit=orbit
   
   end
@@ -82,12 +92,14 @@ class TestNew < Orbit::Exp
     #info("Wait for channel assignment to complete")
     #wait(10)
     
-    #hack - routing/static_routing.rb is not complete - it should populate the routing table of nodes according to the topology of the network described by the xml file while at the moment it just assigns ip addresses.
-    nodes=@orbit.GetNodes
-    @orbit.RunOnNode(nodes[0], "ip route replace default via #{nodes[1].GetAddresses()[0].to_s}")
-    @orbit.RunOnNode(nodes[2], "ip route replace default via #{nodes[1].GetAddresses()[1].to_s}")
-    @orbit.RunOnNode(nodes[1], "echo 1 >/proc/sys/net/ipv4/conf/all/forwarding")
-    
+   
+    if (property.withOlsr.to_s!="yes")
+      #routing/static_routing.rb is not complete - it should populate the routing table of nodes according to the topology of the network described by the xml file while at the moment it just assigns ip addresses.
+      nodes=@orbit.GetNodes
+      @orbit.RunOnNode(nodes[0], "ip route replace default via #{nodes[1].GetAddresses()[0].to_s}")
+      @orbit.RunOnNode(nodes[2], "ip route replace default via #{nodes[1].GetAddresses()[1].to_s}")
+      @orbit.RunOnNode(nodes[1], "echo 1 >/proc/sys/net/ipv4/conf/all/forwarding")
+    end
     
     if (property.extraDelay!=0)
       info("Waiting additional #{property.extraDelay}s as requested.")
@@ -95,30 +107,39 @@ class TestNew < Orbit::Exp
     end
     
     bottNode = @orbit.GetNodesWithAttribute("bottleneck")[0]
-    ifn = "wlan1"
+    ifn = bottNode.GetInterfaces()[1]
+    
+    ifn_real_name=@orbit.GetRealName(bottNode,ifn)	
+
     
     if (property.aqmPolicy.to_s!="") then
       conf=AqmConfigurator.new(property.aqmPolicy.to_s,property.aqmPolicyOptions.to_s)
-      @orbit.RunOnNode(bottNode, conf.ResetCmd(ifn))
-      @orbit.RunOnNode(bottNode, conf.GetCmd(ifn))
+      @orbit.RunOnNode(bottNode, conf.ResetCmd(ifn_real_name))
+      @orbit.RunOnNode(bottNode, conf.GetCmd(ifn_real_name))
     end
     
     iConf=InterfaceConfigurator.new
     property.onFeatures.to_s.split(":").each do |f|
-            @orbit.RunOnNode(bottNode, iConf.GetCmdFeatureOn(f,ifn))
+            @orbit.RunOnNode(bottNode, iConf.GetCmdFeatureOn(f,ifn_real_name))
     end
     property.offFeatures.to_s.split(":").each do |f|
-            @orbit.RunOnNode(bottNode, iConf.GetCmdFeatureOff(f,ifn))
+            @orbit.RunOnNode(bottNode, iConf.GetCmdFeatureOff(f,ifn_real_name))
     end
 
-    @orbit.EnforceRate(bottNode, ifn, property.rate.to_s)
+    if (property.rate.to_s!="")
+        @orbit.EnforceRate(bottNode, ifn, property.rate.to_s)
+    end
+        
     #@rtloggers.Start
     @traffic.Start
     wait(property.duration)
+    
+    orbit.RunOnNode(bottNode, "tc -s qdisc show dev #{ifn_real_name} > /tmp/tcStats 2>&1")
+    orbit.AddLogFile(bottNode, "/tmp/tcStats")
+    
   end
   
 end
-
 
 
    
@@ -126,4 +147,5 @@ exp=TestNew.new(orbit)
 exp.SetDuration(property.duration)
 
 orbit.RunExperiment(exp)
+
 

@@ -5,6 +5,7 @@
   
   <node name="node16-5.grid.orbit-lab.org">
     <attributes>sender</attributes> <!-- comma separated attributes -->
+    <alias>sender</alias>
     <interface type="WifiInterface">
       <mode>station</mode> <!-- either adhoc, station, master -->
       <channel>36</channel>
@@ -13,6 +14,7 @@
   </node>
 
   <node name="node7-10.grid.orbit-lab.org">
+    <alias>ap</alias>
     <attributes>bottleneck</attributes>
         <interface type="WifiInterface">
       <mode>master</mode> 
@@ -27,11 +29,11 @@
       <rate>6</rate>
       <standard>a</standard>
     </interface>
-
   </node>
 
   <node name="node11-17.grid.orbit-lab.org">
     <attributes>receiver</attributes> <!-- comma separated attributes -->
+    <alias>receiver</alias>
     <interface type="WifiInterface">
       <mode>station</mode> 
       <channel>48</channel>
@@ -41,13 +43,13 @@
   </node>
 
   <link type="wifi">
-    <from>node16-5.grid.orbit-lab.org</from>
-    <to>node7-10.grid.orbit-lab.org</to>
+    <from>sender</from>
+    <to>ap</to>
   </link>
   
   <link type="wifi">
-    <from>node7-10.grid.orbit-lab.org</from>
-    <to>node11-17.grid.orbit-lab.org</to>
+    <from>ap</from>
+    <to>receiver</to>
   </link>
   
 </topology>

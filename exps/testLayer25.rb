@@ -114,6 +114,5 @@ end
    
 exp=TestNew.new(orbit)
 exp.SetDuration(property.duration)
-
 orbit.RunExperiment(exp)
 

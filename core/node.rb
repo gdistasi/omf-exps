@@ -13,6 +13,11 @@ class Node
       @attributes = Array.new
       #AddInterface(Interface.new("control"))
       #AddInterface(Interface.new("data"))
+      @aliases = Set.new
+    end
+    
+    def GetName
+      @name
     end
     
     def SetPos(x,y)
@@ -20,10 +25,24 @@ class Node
       @y=y
     end
     
+    def GetAlias
+      @alias
+    end
+    
     def SetType(type)
       @type=type
     end
         
+    def AddAlias(aliase)
+      @alias=aliase
+    end
+    
+    def HasAlias(aliase)
+      puts @alias
+      puts aliase
+	return aliase==@alias
+    end
+    
     def AddAddress(address, ifn)
       ifn.AddAddress(address)
     end

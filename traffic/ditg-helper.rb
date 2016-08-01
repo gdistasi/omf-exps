@@ -211,14 +211,20 @@ class ITGReceiverHelper < TrafficSinkHelper
     
 end
 
-def MakeDITGCmdLine(flow, itgRecv, pktSize, protocol=nil)
+def MakeDITGCmdLine(flow, itgRecv, pktSize, protocol=nil, rttm=nil)
     if (protocol==nil)
 	protocol="TCP"
     end
     pktPerSec=((flow.bitrate*1024)/(pktSize*8)).to_i
     port=itgRecv.GetFreePort()
+    
+    if (rttm==true)
+      extra="-m rttm"
+    else
+      extra=""
+    end
   
-    return "ITGSend -a #{flow.receiver.GetAddresses()[0].ip}  -rp #{port} -Sdp #{itgRecv.GetSigChannelPort()} -T #{protocol} -t #{(flow.stop-flow.start)*1000} -d #{flow.start} -C #{pktPerSec} -c #{pktSize} -j 0"
+    return "ITGSend -a #{flow.receiver.GetAddresses()[0].ip}  -rp #{port} -Sdp #{itgRecv.GetSigChannelPort()} #{extra} -T #{protocol} -t #{(flow.stop-flow.start)*1000} -d #{flow.start} -C #{pktPerSec} -c #{pktSize} -j 0"
 end  
   
 

@@ -235,6 +235,10 @@ def CreateTopoFile
 			  nodeObj.AddAttribute(att)
 			end
 			
+		      if node.at_xpath('alias')!=nil then
+			    nodeObj.AddAlias(node.at_xpath('alias').content)
+		      end
+			
 			if (attributes.include?("sender") or attributes.include?("source"))
 			  @senders << nodeObj
 			elsif (attributes.include?("receiver") or attributes.include?("destination"))

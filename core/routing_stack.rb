@@ -11,6 +11,11 @@ class RoutingStack
   end
 
   
+  
+  def DefProperties
+
+  end
+  
   def SetOrbit(orbit)
     @orbit=orbit
     #@nodes=orbit.GetNodes()

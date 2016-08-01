@@ -1,8 +1,6 @@
 
 
 
-
-
 class AqmConfigurator
   
   
@@ -26,10 +24,6 @@ class AqmConfigurator
       throw "The aqm policy #{@policy} is not supported!."
     end
   end
-  
-  
-  
-  
   
 end
 

@@ -5,6 +5,7 @@ require "core/wifi-interface.rb"
 require "core/interface.rb"
 require "core/wifi-interface.rb"
 require "core/node.rb"
+require "core/log-collector.rb"
 
 require 'omf-expctl/handlerCommands.rb'
 require 'omf-expctl/nodeHandler'
@@ -116,6 +117,8 @@ class Orbit
        File.delete("exp-var.sh")
     end
     
+    @logc = LogCollector.new
+    
   end
   
   def GetIfName(node, ifn)
@@ -125,8 +128,9 @@ class Orbit
   def SetRoutingStack(rstack)
     @rstack=rstack
     rstack.SetOrbit(self)
-    puts "setting stack"
+   # puts "setting stack"
     puts @rstack.class
+    #@rstack.DefProperties
   end
   
   #set the regulatory domain for WiFi interfaces
@@ -184,7 +188,16 @@ class Orbit
   end
   
   def GetNodeByName(name)
-    @nodes_by_name[name]
+    
+      return @nodes_by_name[name] unless @nodes_by_name[name]==nil
+    
+      @nodes_by_name.each do |key,node|
+	  if node.HasAlias(name)
+	    return node
+	  end
+      end
+      
+      throw "Could not find node #{name}!"
   end
   
   def SetRate(rate)
@@ -249,20 +262,21 @@ class Orbit
   end
   
   
-  def EnforceRate(node, ifn_real_name, rate)
+  def EnforceRate(node, ifn, rate)
 
-      if (ifn.GetStandard()!="a")
+      if (ifn.GetStandard()=="n")
                  warn("Setting the rate is not supported for #{ifn.GetStandard} interfaces!")
                  return
       end
               
-      if (ifn.GetChannel()<36)                 
-                Node(node.id).exec("iw dev #{ifn_real_name} set bitrates legacy-2.4 #{ifn.GetRate}")
+      if (ifn.GetChannel<36)                 
+                Node(node.id).exec("iw dev #{GetRealName(node,ifn)} set bitrates legacy-2.4 #{rate}")
       else
-                Node(node.id).exec("iw dev #{ifn_real_name} set bitrates legacy-5 #{ifn.GetRate}")
+                Node(node.id).exec("iw dev #{GetRealName(node,ifn)} set bitrates legacy-5 #{rate}")
       end
       
   end
+  
   
   
   def EnforceRates(node)
@@ -270,7 +284,6 @@ class Orbit
       if (@setradios)
 	node.GetInterfaces().each do |ifn|
             if ifn.IsWifi() and ifn.GetRate()!=""
-                real_name=GetRealName(node,ifn)	
                 EnforceRate(node, ifn, ifn.GetRate())
             end
         end
@@ -1091,6 +1104,17 @@ class Orbit
 	  file.write("#{NodeName(lastNode.x,lastNode.y)}\"\n")
 	end
 	
+	file.write("LOGFILES=\"")
+	@nodes.each do |node|
+	  file.write("#{node.GetName}:")
+	  @logc.GetFileList(node).each do |filename|
+	       file.write("#{filename}")
+	       file.write(",") unless filename==@logc.GetFileList(node).last             
+	    end
+	    file.write(" ")
+	end
+	file.write("\"\n")
+	
 	file.close
   end
   
@@ -1151,6 +1175,10 @@ class Orbit
      
  
     
+  end
+  
+  def AddLogFile(node, file)
+    @logc.Add(node, file)
   end
   
    #Get a reference to an OMF Node object

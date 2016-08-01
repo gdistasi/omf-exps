@@ -28,6 +28,8 @@ class SenderReceiverPattern
 
     @biflow=biflow=="yes"
     
+    @rttm=false
+    
     if (@biflow)
       file=File.open("exp-var.sh","a")
       file.puts("BIFLOW=\"yes\"")
@@ -35,6 +37,10 @@ class SenderReceiverPattern
     end
     
     
+  end
+  
+  def TurnRttmOn
+    @rttm=true
   end
 
   #install ITGRecv on each receiver and ITGSend and ITGManager on each sender
@@ -143,7 +149,7 @@ class SenderReceiverPattern
 	      flow.SetEnd(@duration)
 	      info("Starting a flow from #{flow.sender.id} to #{flow.receiver.id}, protocol #{proto}, at #{flow.bitrate} kbps")
 	      itgRecv=FindITGRecv(flow.receiver.id, proto)
-	      cmd=MakeDITGCmdLine(flow, itgRecv, 500, proto)
+	      cmd=MakeDITGCmdLine(flow, itgRecv, 500, proto, @rttm)
 	      logF="/tmp/itgSenderLog-#{proto}-#{flow.sender.id}-#{flow.receiver.id}"
 	      info("Command on node #{flow.sender.id}: #{cmd} ")
 	      @orbit.Node(flow.sender.id).exec("#{cmd} >#{logF} 2>&1")

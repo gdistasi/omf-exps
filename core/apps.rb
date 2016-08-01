@@ -252,20 +252,23 @@ class OlsrHelper
     @olsrdebug=level
   end
   
-  def Install(node_id)
+  def Install(node)
 
+    
+    node_id=node.GetId
+    
     group("node#{node_id}").addApplication('olsrapplication', :id => @name ) do |app|
 	  app.setProperty('id', node_id)
 	  app.setProperty('setradios', false)
 	  
 	  inter_names=Array.new
-	  @interfaces.each do |int|
-	    inter_names << int.name
+	  @interfaces.each do |ifn|
+	    inter_names << @orbit.GetRealName(node,ifn)
 	  end
 
 	  interfaces=""
-	  @interfaces.each do |int|
-	      interfaces="#{interfaces}#{int.name}:#{int.type},"
+	  @interfaces.each do |ifn|
+	      interfaces="#{interfaces}#{@orbit.GetRealName(node,ifn)}:WifiAdhoc,"
 	  end
 	  interfaces.chomp!(",")
 	  
