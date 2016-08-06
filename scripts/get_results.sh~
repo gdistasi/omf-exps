@@ -3,7 +3,7 @@ OMFVER=5.4
 
 #set the needed environment variable
 . orbit-var.sh
-. exp-var.sh
+. exp-var.sh  2> /dev/null
 
 if ! [[ $ENV ]]; then
   ENV="ORBIT"
@@ -27,7 +27,7 @@ for i in `echo $GATEWAYS | tr "," " "` ; do
    scp root@$i:/tmp/tmp/itgsend.log $logdir/itgsend.log-$i
 done
 
-if [[ $BIFLOW == "yes" ]]; then
+#if [[ $BIFLOW == "yes" ]]; then
   for i in `echo $AGGREGATORS | tr "," " "` ; do
     scp root@$i:/tmp/ditg.log* $logdir/ 
     #scp root@$i:/tmp/itgrecLog.txt $logdir/itgrecLog.txt-$i
@@ -35,13 +35,13 @@ if [[ $BIFLOW == "yes" ]]; then
   for i in `echo $GATEWAYS | tr "," " "` ; do
     scp root@$i:/tmp/tmp/itgsend.log $logdir/itgsend.log-$i
   done
-fi
+#fi
 
 for i in `echo $NODES | tr "," " "`; do 
     echo "Copying files from node $i"
     (mkdir -p $logdir/$i;
     scp -v root@$i:"/var/log/caagent.log /var/log/mesh.log /var/log/omf-resctl-${OMFVER}.log /tmp/rtLog* /tmp/tcpdump-* /var/log/syslog  /tmp/itgmanager.log" $logdir/$i 2>/dev/null;
-   # find $logdir/$i/ -iname "*.pcap" -exec mv \{\} $logdir/ \; 
+    find $logdir/$i/ -iname "*.pcap" -exec mv \{\} $logdir/ \; 
     #mv $logdir/$i/olsrd-2.conf $logdir/$i/olsrd.conf 2>/dev/null
     ssh root@$i dmesg > $logdir/$i/dmesg 2>&1 ;
     
@@ -49,6 +49,7 @@ for i in `echo $NODES | tr "," " "`; do
     if [[ $FILES ]]; then
       scp -v root@$i:"$FILES" $logdir/$i/ 2> /dev/null;
     fi
+    )&
     
     #virtualmesh
     #scp root@$i:"/root/iwconnect.out /var/log/aodvd.log /var/log/aodvd.rtlog /var/log/aodvd.replog" $logdir/$i/ 2>/dev/null;)&

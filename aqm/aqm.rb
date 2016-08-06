@@ -15,14 +15,8 @@ class AqmConfigurator
   
   
   def GetCmd(ifn)
-    
-    if (@policy=="pfifo_fast") then
-      cmd="tc qdisc add dev #{ifn} root pfifo_fast"      
-    elsif (@policy=="fq_codel") then
-      cmd="tc qdisc add dev #{ifn} root fq_codel"      
-    elsif
-      throw "The aqm policy #{@policy} is not supported!."
-    end
+      cmd="tc qdisc add dev #{ifn} root #{@policy} #{@options}"      
+      return cmd
   end
   
 end

@@ -3,7 +3,7 @@ OMFVER=5.4
 
 #set the needed environment variable
 . orbit-var.sh
-. exp-var.sh
+. exp-var.sh  2> /dev/null
 
 if ! [[ $ENV ]]; then
   ENV="ORBIT"
@@ -20,14 +20,14 @@ logdir=$1
 mkdir $logdir 
 
 for i in `echo $GATEWAYS | tr "," " "` ; do
-  scp root@$i:/tmp/ditg.log* $logdir/ 
+  scp root@$i:/tmp/ditg.log* $logdir/  2>/dev/null
   #scp root@$i:/tmp/itgrecLog.txt $logdir/itgrecLog.txt-$i
 done
 for i in `echo $GATEWAYS | tr "," " "` ; do
-   scp root@$i:/tmp/tmp/itgsend.log $logdir/itgsend.log-$i
+   scp root@$i:/tmp/tmp/itgsend.log $logdir/itgsend.log-$i 2>/dev/null
 done
 
-if [[ $BIFLOW == "yes" ]]; then
+#if [[ $BIFLOW == "yes" ]]; then
   for i in `echo $AGGREGATORS | tr "," " "` ; do
     scp root@$i:/tmp/ditg.log* $logdir/ 
     #scp root@$i:/tmp/itgrecLog.txt $logdir/itgrecLog.txt-$i
@@ -35,7 +35,7 @@ if [[ $BIFLOW == "yes" ]]; then
   for i in `echo $GATEWAYS | tr "," " "` ; do
     scp root@$i:/tmp/tmp/itgsend.log $logdir/itgsend.log-$i
   done
-fi
+#fi
 
 for i in `echo $NODES | tr "," " "`; do 
     echo "Copying files from node $i"
@@ -49,6 +49,7 @@ for i in `echo $NODES | tr "," " "`; do
     if [[ $FILES ]]; then
       scp -v root@$i:"$FILES" $logdir/$i/ 2> /dev/null;
     fi
+    )&
     
     #virtualmesh
     #scp root@$i:"/root/iwconnect.out /var/log/aodvd.log /var/log/aodvd.rtlog /var/log/aodvd.replog" $logdir/$i/ 2>/dev/null;)&

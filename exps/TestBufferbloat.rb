@@ -110,7 +110,6 @@ class TestNew < Orbit::Exp
     ifn = bottNode.GetInterfaces()[1]
     
     ifn_real_name=@orbit.GetRealName(bottNode,ifn)	
-
     
     if (property.aqmPolicy.to_s!="") then
       conf=AqmConfigurator.new(property.aqmPolicy.to_s,property.aqmPolicyOptions.to_s)
@@ -119,10 +118,10 @@ class TestNew < Orbit::Exp
     end
     
     iConf=InterfaceConfigurator.new
-    property.onFeatures.to_s.split(":").each do |f|
+    property.onFeatures.to_s.split(",").each do |f|
             @orbit.RunOnNode(bottNode, iConf.GetCmdFeatureOn(f,ifn_real_name))
     end
-    property.offFeatures.to_s.split(":").each do |f|
+    property.offFeatures.to_s.split(",").each do |f|
             @orbit.RunOnNode(bottNode, iConf.GetCmdFeatureOff(f,ifn_real_name))
     end
 
@@ -134,8 +133,8 @@ class TestNew < Orbit::Exp
     @traffic.Start
     wait(property.duration)
     
-    orbit.RunOnNode(bottNode, "tc -s qdisc show dev #{ifn_real_name} > /tmp/tcStats 2>&1")
-    orbit.AddLogFile(bottNode, "/tmp/tcStats")
+    @orbit.RunOnNode(bottNode, "tc -s qdisc show dev #{ifn_real_name} > /tmp/tcStats 2>&1")
+    @orbit.AddLogFile(bottNode, "/tmp/tcStats")
     
   end
   
