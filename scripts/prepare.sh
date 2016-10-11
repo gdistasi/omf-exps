@@ -90,10 +90,6 @@ sleep 120
 
 #./update_na.sh
 
-
-python -m SimpleHTTPServer > http.log 2>&1 &
-
-
 #./scripts/restart-resctl.sh
 
 #./scripts/update-omf-${OMFVER}agent.sh
