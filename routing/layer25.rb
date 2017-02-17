@@ -1,5 +1,5 @@
 require 'core/orbit.rb'
-require 'routing/routing_stack.rb'
+require 'core/routing_stack.rb'
 require 'core/apps.rb'
 require 'utils/click.rb'
 
@@ -20,16 +20,16 @@ class OrbitLayer25 < RoutingStack
 
  def InstallStack
  
-    @receivers=@orbit.GetReceivers()
+    #@receivers=@orbit.GetReceivers()
    
     #install Layer2.5 stack on each node
-    stackApp=Layer25Helper.new(@orbit.GetInterfaces(), @orbit)
+    stackApp=Layer25Helper.new(@orbit)
     stackApp.SetDebug(@debug)
     stackApp.SetOlsrDebug(property.olsrdebug)
     
     if (property.aggregation_enabled.to_s=="1")
-	stackApp.EnableAggregation()
-	stackApp.SetAggregationDelay(Integer(property.aggregation_delay.to_s))
+        stackApp.EnableAggregation()
+        stackApp.SetAggregationDelay(Integer(property.aggregation_delay.to_s))
     end
     
     if (property.aggregation_algo.to_s!="")
@@ -37,7 +37,7 @@ class OrbitLayer25 < RoutingStack
     end
     
     if (property.weigthFlowrates.to_s!="no")
-	stackApp.SetWeigthFlowrates(true)
+        stackApp.SetWeigthFlowrates(true)
     else
       	stackApp.SetWeigthFlowrates(false)
     end
@@ -47,13 +47,13 @@ class OrbitLayer25 < RoutingStack
     @orbit.GetNodes.each do |node|
       
       if (node.type!="R" and node.type!="A" and node.type!="G")
-	next
+        next
       end
       
-      if (node.id==@receivers[0].id)
-	  stackApp.SetGateway(true)
+      if node.HasAttribute("gateway")
+        stackApp.SetGateway(true)
       else
-	  stackApp.SetGateway(false)
+        stackApp.SetGateway(false)
       end
 
       if (property.kernelMode.to_s=="yes")
@@ -62,13 +62,13 @@ class OrbitLayer25 < RoutingStack
       
       stackApp.FlushRoutingRules()
       @rules.to_a.each do |rule|
-	if rule.gateway==GetIpFromId(node.id)
-	  stackApp.AddRoutingRule(rule.to,"255.255.255.255")
-	end
+        if rule.gateway==GetIpFromId(node.id)
+            stackApp.AddRoutingRule(rule.to,"255.255.255.255")
+        end
       end
    
 
-      @stackApps.Add(stackApp.Install(node.id))
+      @stackApps.Add(stackApp.Install(node.id, node.GetInterfaces))
       
     end
     
@@ -95,9 +95,11 @@ class OrbitLayer25 < RoutingStack
  end
  
  def SetMtu(node)
-	@orbit.GetInterfaces.each do |ifn|
-	    @orbit.GetGroupInterface(node, ifn).mtu="1528"
-	end
+    @orbit.GetNodes.each do |node|
+        node.GetInterfaces.each do |ifn|
+            @orbit.GetGroupInterface(node, ifn).mtu="1528"
+        end
+    end
  end
 
  def StopStack

@@ -41,9 +41,6 @@ orbit.SetRoutingStack(rstack)
 #ask orbit to set up the radios
 orbit.SetRadios(true)
 
-#read the topology from the file property.topo
-topo=Orbit::Topology.new(property.topo, orbit)
-
 #define the links to be used (enforced via iptable)
 if (property.links.to_s!="")
 	topo.AddLinksFromFile(property.links.to_s)
@@ -54,7 +51,7 @@ if (property.range.to_s!="")
 end
 
 #pass the topology specification to Orbit that will enforce it
-orbit.UseTopo(topo)
+orbit.UseTopo(property.topo.to_s)
 
 orbit.SetPower(15)
 
@@ -62,11 +59,11 @@ class TestNew < Orbit::Exp
 
   def initialize(orbit)
     
-    if (property.caserverId.to_s!="")
-     @cassign=ChannelAssigner.new(orbit, property.demands.to_s, property.caAlgo, property.caAlgoOption, property.caserverId.to_s)
-    else
-     @cassign=ChannelAssigner.new(orbit, property.demands.to_s, property.caAlgo, property.caAlgoOption, nil)
-    end
+   # if (property.caserverId.to_s!="")
+    # @cassign=ChannelAssigner.new(orbit, property.demands.to_s, property.caAlgo, property.caAlgoOption, property.caserverId.to_s)
+   # else
+   #  @cassign=ChannelAssigner.new(orbit, property.demands.to_s, property.caAlgo, property.caAlgoOption, nil)
+  #  end
      #@traffic=IncreaseNumFlowsPattern.new(orbit, property.initialDemands, property.protocol, property.numFlows, property.duration, property.biflow.to_s=="yes")
     @traffic=SenderReceiverPattern.new(orbit, property.demands.to_s, property.protocol, property.duration, property.biflow.to_s)
     @orbit=orbit
@@ -74,7 +71,7 @@ class TestNew < Orbit::Exp
   end
   
   def InstallApplications
-    @cassign.InstallApplications()
+   # @cassign.InstallApplications()
     @traffic.InstallApplications()
     
     #install routing table logger
@@ -98,7 +95,7 @@ class TestNew < Orbit::Exp
   end
   
   def Start
-    @cassign.Start
+  #La  @cassign.Start
     info("Wait for channel assignment to complete")
     wait(60)
     if (property.extraDelay!=0)

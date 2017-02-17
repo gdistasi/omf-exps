@@ -296,7 +296,9 @@ def CreateTopoFile
 	# the format of each line is: A|G|R xpos ypos numRadios
 	# A stands for aggregator device; G stands for gateway device; R stands for router
   	def ReadTopo(topo)
-	  topo=topo.to_s
+	  puts topo
+        
+        topo=topo.to_s
 	  
 	  if not topo.include?(".xml")
 

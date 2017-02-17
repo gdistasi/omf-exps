@@ -10,8 +10,8 @@ class ITGDaemonHelper
       @orbit=orbit
       
       if (@@defined == false)
-	DefineApp()
-	@@defined=true
+        DefineApp()
+        @@defined=true
       end
       
     end
@@ -32,8 +32,12 @@ class ITGDaemonHelper
     
     def DefineApp
        defApplication('itgdaemon','itg') do |app|
-	    app.path = "/usr/bin/ITGSend -Q >/tmp/itgsend.log 2>&1"
-	    
+        if @orbit.GetEnv!="MININET"
+            app.path = "/usr/bin/ITGSend -Q >/tmp/itgsend.log 2>&1"
+        else
+            app.path = "/usr/bin/ITGSend -Q "
+        end
+            
 	    if (@orbit.GetEnv()!="WILEE")
 	      if (@orbit.ECCanServeFiles())      
 	        app.appPackage = "bin/ditg.tar.gz"

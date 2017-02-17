@@ -12,11 +12,10 @@ class Layer25Helper
    
   @@defined=false
   
-  def initialize(interfaces, orbit, kernelmode=false)
-    @interfaces=interfaces
+  def initialize(orbit, kernelmode=false)
     @isgateway=false
     @name="layer25"
-    @path="ruby /usr/local/bin/mesh.rb >>/var/log/mesh.log 2>&1"
+    @path="ruby /usr/local/bin/mesh.rb"
     
 
     @orbit=orbit
@@ -61,24 +60,29 @@ class Layer25Helper
     @weigthFlowrates=w
   end
 
-  def Install(node_id)
+  def Install(node_id, interfaces)
 
     group("node#{node_id}").addApplication('layer25application', :id => @name ) do |app|
-	  app.setProperty('id', node_id)
 	  
+      app.setProperty('ip', "5.0.0.#{node_id+1}")
+        
 	  #if orbit sets the radio, L2R does not
 	  if (@setradios==false)
 	    app.setProperty('setradios', true)
 	  else
 	    app.setProperty('setradios', false)
 	  end
-	  interfaces=""
-	  @interfaces.each do |int|
-	      interfaces="#{interfaces}#{int.name}:#{int.type},"
+	  interfacesStr=""
+	  interfaces.each do |int|
+          if int.class.to_s=="WifiInterface" then
+            interfacesStr="#{interfacesStr}#{int.name}:WifiAdhoc,"
+          else
+            interfacesStr="#{interfacesStr}#{int.name}:Ether},"  
+          end
 	  end
-	  interfaces.chomp!(",")
+	  interfacesStr.chomp!(",")
 	  
-	  app.setProperty('interfaces', interfaces)
+	  app.setProperty('interfaces', interfacesStr)
 	  
 	  if (@isgateway)
 	    app.setProperty('gateway',true)
@@ -117,6 +121,7 @@ class Layer25Helper
 	  if (@hnas!="")
 		app.setProperty('hnas',@hnas)
 	  end
+      
 	  
 	  app.setProperty('olsrdebug', @olsrdebug)
 	  
@@ -155,13 +160,16 @@ class Layer25Helper
       app.shortDescription = "Layer 2.5 Routing" 
       app.description = "Layer 2.5 routing stack." 
       
-      if (@orbit.GetEnv()!="WILEE")
+      if (@orbit.GetEnv()!="WILEE" and @orbit.GetEnv()!="MININET")
         if (@orbit.ECCanServeFiles())      
-	  app.appPackage = "bin/layer2.5.tar.gz"
+            app.appPackage = "bin/layer2.5.tar.gz"
         else
-	  app.appPackage = "http://#{@orbit.GetECAddress()}:8000/bin/layer2.5.tar.gz"
+            app.appPackage = "http://#{@orbit.GetECAddress()}:8000/bin/layer2.5.tar.gz"
         end
       end
+      
+      app.defProperty('ip', "Ip of the node.", "--ip",
+                     {:type => :string, :dynamic => false})
 
       app.defProperty('id', 'Node id', "--id", 
 		    {:type => :integer, :dynamic => false})
@@ -183,6 +191,8 @@ class Layer25Helper
       app.defProperty('switchOff', "Set this option to force a switch off and then a switch on of the interface after a channel change.", "--switchOff", {:type => :boolean, :dynamic => false})
       
       app.defProperty('aggregation', "Set this option to enable aggregation", "--aggregation", {:type=> :boolean, :dynamic => false})
+      
+
       
       app.defProperty('aggregationAware', "Set to enable aggregation aware routing (the specific algorithm has to be selected with the aggregationAwareAlgorithm option", "--aggregationAware", {:type=> :boolean, :dynamic => false})
 
@@ -325,12 +335,12 @@ class OlsrHelper
     
     defApplication('olsrapplication', 'olsr') do |app|
   
-      app.path = "ruby /usr/local/bin/olsrd.rb >>/var/log/mesh.log 2>&1"
+      app.path = "ruby /usr/local/bin/olsrd.rb "
       app.version(1, 1, 1)
       app.shortDescription = "Olsr Routing" 
       app.description = "Olsr routing stack."
       
-      if (@orbit.GetEnv()!="WILEE")
+      if (@orbit.GetEnv()!="WILEE" and @orbit.GetEnv()!="MININET")
       if (@orbit.ECCanServeFiles())      
 	app.appPackage = "bin/layer2.5.tar.gz"
       else

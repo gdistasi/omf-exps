@@ -60,9 +60,15 @@ class Orbit
     else
       @channels = [ 36, 44, 149, 157, 165, 1, 11 ]
     
-      if GetEnv()=="NEPTUNE"
-	@channels = [ 1, 6, 11, 4, 8 ]
+      if GetEnv()=="NEPTUNE" or GetEnv()=="MININET"
+        @channels = [ 1, 6, 11, 4, 8 ]
       end
+    end
+    
+    if GetEnv()=="NEPTUNE" then
+       @aggmgr=="tk-virtual" 
+    elsif GetEnv()=="MININET" then
+       @aggmgr=="mininet" 
     end
 
     #tool to be used by omf to enforce the topology - default to iptable
@@ -100,7 +106,7 @@ class Orbit
     @gateways = Array.new
     
     
-   if (property.env.to_s.include?("ORBIT") or property.env.to_s=="NEPTUNE" or property.env.to_s=="WILEE")
+   if (property.env.to_s.include?("ORBIT") or property.env.to_s=="NEPTUNE" or property.env.to_s=="WILEE" or property.env.to_s=="MININET")
 	AddWifiInterfaceMapping(0, "wlan0")
 	AddWifiInterfaceMapping(1, "wlan1")
     else
@@ -136,7 +142,7 @@ class Orbit
   #set the regulatory domain for WiFi interfaces
   def SetReg()
       if (@env=="ORBIT")
-	allGroups.exec("iw reg set US")
+        allGroups.exec("iw reg set US")
       end
   end
   
@@ -464,7 +470,11 @@ class Orbit
     
 		@nodes.each{ |node|
                     puts "Adding node"
+                   if GetEnv()=="MININET" then  
+                    t.addNode("node#{node.id}", NodeNameS(node) )
+                   else
                     t.addNode("node#{node.id}", NodeName(node.x,node.y) )
+                   end
         	}
 		@links.each do |link|
 		        puts "Adding link"
@@ -571,7 +581,7 @@ class Orbit
 		      posy=Integer(name.split(".")[0].split("-")[1])
 		      posx=Integer(name.split(".")[0].split("-")[0].split("node")[1])
 		      node.SetPos(posx,posy)
-		    end
+            end
 		    
 		    @lastId=@lastId+1
 	            DefineGroup(node)
@@ -604,8 +614,12 @@ class Orbit
 	return nodes
   end
   
-  def NodeName(node)
-      return NodeName(node.x,node.y)
+  def NodeNameS(node)
+      if GetEnv()=="MININET" then
+            node.name
+      else    
+        return NodeName(node.x,node.y)
+      end
   end
   
   #Get the node name from the [x,y] coordinate
@@ -644,10 +658,10 @@ class Orbit
 		"10.10.#{node.x}.#{node.y}"
 	elsif (@env=="MYXEN")
 		"192.168.8.#{node.y+10}"
-	elsif (@env=="NEPTUNE")
+	elsif (@env=="NEPTUNE" or @env=="MININET")
 	  
-	    nodeName = NodeName(node.x,node.y)
-	    url = "http://tk-virtual:5053/inventory/getControlIP?hrn=#{nodeName}&domain=#{OConfig.domain}"
+	    nodeName = NodeNameS(node)
+	    url = "http://#{@aggmgr}:5053/inventory/getControlIP?hrn=#{nodeName}&domain=#{OConfig.domain}"
 	    #reply = NodeHandler.service_call(url, "Can't get Control IP for '#{nodeName}'")
 	    
 	    open(url) do |f|
@@ -690,7 +704,7 @@ class Orbit
 		"eth1"
 	elsif (@env=="WILEE")
 		"eth1"
-	elsif (@env=="NEPTUNE")
+	elsif (@env=="NEPTUNE" or @env=="MININET")
 		"eth0"
 	else
 		$stderr.print("Don't know the control interface for the testbed #{@env}. Exiting.\n")
@@ -759,7 +773,7 @@ class Orbit
 	            if node.name != nil then
 	                defGroup("node#{node.id}",  node.name)
 	            else
-			defGroup("node#{node.id}",  NodeName(node.x,node.y))
+			defGroup("node#{node.id}",  NodeNameS(node))
 		    end
   end
 	            
@@ -936,6 +950,8 @@ class Orbit
 	return "192.168.8.200"
       elsif GetEnv()=="WILEE"
 	return "192.168.8.200"
+      elsif GetEnv()=="MININET"
+    return "10.0.0.200"      
       else
 	raise "No GetECAddress supported in #{GetEnv()}"
       end
@@ -1074,21 +1090,21 @@ class Orbit
 	file.write("NODES=\"")
 
 	@nodes[0,@nodes.size-1].each do |node|
-		file.write("#{NodeName(node.x,node.y)},")
+		file.write("#{NodeNameS(node)},")
    	end
 	lastNode=@nodes[-1]
-        file.write("#{NodeName(lastNode.x,lastNode.y)}\"\n")
+        file.write("#{NodeNameS(lastNode)}\"\n")
 
 	
 	if (@receivers.size()>0)
 	  file.write("GATEWAYS=\"")
 	
 	  @receivers[0,@receivers.size-1].each do |node|
-		file.write("#{NodeName(node.x,node.y)},")
+		file.write("#{NodeNameS(node)},")
 	  end
 	  
 	  lastNode=@receivers[-1]
-	  file.write("#{NodeName(lastNode.x,lastNode.y)}\"\n")
+	  file.write("#{NodeNameS(lastNode)}\"\n")
 	
 	end  
 	  
@@ -1097,11 +1113,11 @@ class Orbit
           file.write("AGGREGATORS=\"")
 
 	  @senders[0,@senders.size-1].each do |node|
-		file.write("#{NodeName(node.x,node.y)},")
+		file.write("#{NodeNameS(node)},")
 	
 	  end
 	  lastNode=@senders[-1]
-	  file.write("#{NodeName(lastNode.x,lastNode.y)}\"\n")
+	  file.write("#{NodeNameS(lastNode)}\"\n")
 	end
 	
 	file.write("LOGFILES=\"")
