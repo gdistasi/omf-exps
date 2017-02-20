@@ -268,10 +268,16 @@ class Orbit
   end
   
   
+  def EnforceRateOmf(node, ifn, rate)
+        GetGroupInterface(node, ifn).rate=rate
+  end
+  
   def EnforceRate(node, ifn, rate)
-
+      if GetEnv()=="MININET" then return EnforceRateOmf(node, ifn, rate) end
+      
       if (ifn.GetStandard()=="n")
-                 warn("Setting the rate is not supported for #{ifn.GetStandard} interfaces!")
+                 #warn("Setting the rate is not supported for #{ifn.GetStandard} interfaces!")
+                Node(node.id).exec("iwconfig dev #{GetRealName(node,ifn)} rate #{rate}")
                  return
       end
               
@@ -661,7 +667,7 @@ class Orbit
 	elsif (@env=="NEPTUNE" or @env=="MININET")
 	  
 	    nodeName = NodeNameS(node)
-	    url = "http://#{@aggmgr}:5053/inventory/getControlIP?hrn=#{nodeName}&domain=#{OConfig.domain}"
+	    url = "http://localhost:5054/inventory/getControlIP?hrn=#{nodeName}&domain=#{OConfig.domain}"
 	    #reply = NodeHandler.service_call(url, "Can't get Control IP for '#{nodeName}'")
 	    
 	    open(url) do |f|
@@ -686,6 +692,10 @@ class Orbit
 	end
   end
 
+  def getControlIP(node)
+     return GetControlIp(node) 
+  end
+  
   def GetDataInterface()
     if (@env=="ORBIT")
       return "eth0"
@@ -1089,22 +1099,49 @@ class Orbit
 	file=File.open("orbit-var.sh","w")
 	file.write("NODES=\"")
 
+    
 	@nodes[0,@nodes.size-1].each do |node|
-		file.write("#{NodeNameS(node)},")
+        if GetEnv()=="MININET" then
+           n=getControlIP(node) 
+        else
+           n=NodeNameS(node)
+        end
+        
+        file.write("#{n},")
    	end
 	lastNode=@nodes[-1]
-        file.write("#{NodeNameS(lastNode)}\"\n")
+    
+    if GetEnv()=="MININET" then
+           n=getControlIP(lastNode) 
+    else
+           n=NodeNameS(lastNode)
+    end
+    
+    file.write("#{n}\"\n")
 
 	
 	if (@receivers.size()>0)
 	  file.write("GATEWAYS=\"")
 	
 	  @receivers[0,@receivers.size-1].each do |node|
-		file.write("#{NodeNameS(node)},")
+          if GetEnv()=="MININET" then
+           n=getControlIP(node) 
+      else
+           n=NodeNameS(node)
+      end
+          
+		file.write("#{n},")
 	  end
 	  
 	  lastNode=@receivers[-1]
-	  file.write("#{NodeNameS(lastNode)}\"\n")
+      
+      if GetEnv()=="MININET" then
+           n=getControlIP(lastNode) 
+      else
+           n=NodeNameS(lastNode)
+      end
+      
+	  file.write("#{n}\"\n")
 	
 	end  
 	  
@@ -1113,22 +1150,38 @@ class Orbit
           file.write("AGGREGATORS=\"")
 
 	  @senders[0,@senders.size-1].each do |node|
-		file.write("#{NodeNameS(node)},")
+          
+          if GetEnv()=="MININET" then
+           n=getControlIP(node) 
+      else
+           n=NodeNameS(node)
+      end
+		file.write("#{n},")
 	
 	  end
 	  lastNode=@senders[-1]
-	  file.write("#{NodeNameS(lastNode)}\"\n")
+      if GetEnv()=="MININET" then
+           n=getControlIP(lastNode) 
+      else
+           n=NodeNameS(lastNode)
+      end
+      
+	  file.write("#{n}\"\n")
 	end
 	
 	file.write("LOGFILES=\"")
+    i=  1
 	@nodes.each do |node|
-	  file.write("#{node.GetName}:")
+	  file.write("#{node.GetName}:") if GetEnv()!="MININET"
+      file.write("10.0.0.%d:" %i) if GetEnv()=="MININET"
+      
 	  @logc.GetFileList(node).each do |filename|
 	       file.write("#{filename}")
 	       file.write(",") unless filename==@logc.GetFileList(node).last             
 	    end
 	    file.write(" ")
-	end
+      i+=1
+    end
 	file.write("\"\n")
 	
 	file.close

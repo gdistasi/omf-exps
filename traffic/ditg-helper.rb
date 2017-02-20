@@ -38,7 +38,7 @@ class ITGDaemonHelper
             app.path = "/usr/bin/ITGSend -Q "
         end
             
-	    if (@orbit.GetEnv()!="WILEE")
+	    if (@orbit.GetEnv()!="WILEE" and @orbit.GetEnv()!="MININET")
 	      if (@orbit.ECCanServeFiles())      
 	        app.appPackage = "bin/ditg.tar.gz"
 	      else 
@@ -185,7 +185,7 @@ class ITGReceiverHelper < TrafficSinkHelper
     def DefineApp
        defApplication('itgreceiver','itg') do |app|
 	    app.path = "/usr/bin/ITGRecv"
-	    if (@orbit.GetEnv()!="WILEE")
+	    if (@orbit.GetEnv()!="WILEE" and @orbit.GetEnv()!="MININET")
 	    if (@orbit.ECCanServeFiles())      
 	      app.appPackage = "bin/ditg.tar.gz"
 	    else

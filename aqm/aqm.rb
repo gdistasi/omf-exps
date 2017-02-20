@@ -14,9 +14,15 @@ class AqmConfigurator
   end
   
   
-  def GetCmd(ifn)
-      cmd="tc qdisc add dev #{ifn} root #{@policy} #{@options}"      
-      return cmd
+  def GetCmd(ifn, parent=nil)
+    
+      if parent == nil then
+        cmd="tc qdisc replace dev #{ifn} root #{@policy} #{@options}"      
+      else
+        cmd="tc qdisc add dev #{ifn} parent #{parent} #{@policy} #{@options}"
+      end
+        
+    return cmd
   end
   
 end
