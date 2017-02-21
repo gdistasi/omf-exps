@@ -1,4 +1,5 @@
-#!/usr/bin/ruby -w
+#!/usr/bin/ruby 
+
 
 env=ENV['ENV']
 
@@ -16,7 +17,7 @@ home="/home/mininet/mininetOmf" if env=="MININET"
 #system("bash -c \"cd ~; ./update_l2r.sh\"")
 
 if ARGV[0]==nil
-  require 'bufferbloatExps.rb'
+  require "bufferbloatExps.rb"
 else
   require ARGV[0]
 end
@@ -39,7 +40,7 @@ system("python -m SimpleHTTPServer > http.log 2>&1 &")
 #create experiments directory
 system("mkdir -p autoexps")
 
-first_exp=trueres
+first_exp=true
 
 $EXPS.each do |exp|
 
@@ -50,7 +51,7 @@ $EXPS.each do |exp|
    end
    
       system("../../scripts/restartOmfResctl.py #{exp["topo"]} #{home}") 
-      system("rm -f /tmp/default*xml /tmp/default*log /tmp/itg*log /tmp/ditg* /tmp/*pcap /tmp/tcStats")
+      system("sudo rm -f /tmp/default*xml /tmp/default*log /tmp/itg*log /tmp/ditg* /tmp/*pcap /tmp/tcStats")
       
       logdir="autoexps/bufferbloat_0"
       
@@ -123,11 +124,13 @@ $EXPS.each do |exp|
             system("bash ../../scripts/del_logs.sh")
         end
         
-        system("rm -rf #{logdir}")
+        system("rm -rf #{logdir}/*")
 	    
         
 	    omf_pid=nil
 	    
+        $omfExitValue=-1
+        
 	    #execute OMF in a thread
 	    omf_t = Thread.new do
 	      
@@ -153,35 +156,38 @@ $EXPS.each do |exp|
                 puts line
             end
          
-            if $?!=0
-                throw "Error: exit value was: #{$?}"
-            end
-	      
+            
           end
+
+          $?
+          
         end
 	    #checking the OMF thread
+        
         
 	    start=Time.new
 	    ok=false
 	    
 	    k=0
 	    
+        
 	    while true
             
 	      now=Time.new
-	      
-	      #exited normally
-	      if (omf_t.status == false)
-            $stderr.puts "Omf expc exited normally."
-            ok=true
+	                
+	      #thread ended
+          if omf_t.stop? then
+            omfExitValue = omf_t.value
+            if omfExitValue==0
+                $stderr.puts "Omf expc exited normally."
+                ok=true
+            else
+            #exited with an exception
+                $stderr.puts "Omf expc exited with an exception (return value: #{omfExitValue})"
+                ok=false
+            end
             break
-	      end
-	      
-	      #exited with an exception
-	      if (omf_t.status == nil)
-            $stderr.puts "Omf expc exited with an exception."
-            break
-	      end
+          end
 	      
 	      if (now-start > 110 and first_exp and false)
             puts "Killing first experiment!"
@@ -199,6 +205,7 @@ $EXPS.each do |exp|
             system("pkill -P #{omf_pid}")
             sleep(10)
             system("pkill -9 -P #{omf_pid}")
+            ok=false
             break
 	      end
 	      
