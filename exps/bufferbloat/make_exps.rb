@@ -39,7 +39,7 @@ system("python -m SimpleHTTPServer > http.log 2>&1 &")
 #create experiments directory
 system("mkdir -p autoexps")
 
-first_exp=true
+first_exp=trueres
 
 $EXPS.each do |exp|
 
@@ -50,6 +50,7 @@ $EXPS.each do |exp|
    end
    
       system("../../scripts/restartOmfResctl.py #{exp["topo"]} #{home}") 
+      system("rm -f /tmp/default*xml /tmp/default*log /tmp/itg*log /tmp/ditg* /tmp/*pcap /tmp/tcStats")
       
       logdir="autoexps/bufferbloat_0"
       

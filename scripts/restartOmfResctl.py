@@ -33,7 +33,7 @@ if __name__ == '__main__':
             time.sleep(1)
             os.system("sudo kill -9 %s 2>/dev/null" %pid)
             
-        os.system("sudo /etc/init.d/omf-aggmgr-5.4 restart")
+        #os.system("sudo /etc/init.d/omf-aggmgr-5.4 restart")
     
     
     xmldoc = minidom.parse(topo)
@@ -47,7 +47,7 @@ if __name__ == '__main__':
         if os.environ["ENV"]=="ORBIT":
             os.system("ssh root@%s \"/etc/init.d/omf-resctl-5.4 stop; sleep 1; killall -9 ruby; sleep 3; /etc/init.d/omf-resctl-5.4 start\""%ip)
         elif os.environ["ENV"]=="MININET":
-                    os.system("ssh root@%s \"cd %s; omf-resctl-5.4 -C omf-resctl-%s.yaml > omf-resctl-%s.log & \"" %(ip,confDir,name,name))
+                    os.system("ssh root@%s \"cd %s; omf-resctl-5.4 -C omf-resctl-%s.yaml --log stdout > omf-resctl-%s.log & \"" %(ip,confDir,name,name))
         i+=1
                 
             
