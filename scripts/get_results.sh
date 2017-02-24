@@ -1,3 +1,4 @@
+#!/bin/bash
 
 OMFVER=5.4
 

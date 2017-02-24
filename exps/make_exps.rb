@@ -2,26 +2,30 @@
 
 require 'find'
 
-env=ENV['ENV']
 
-if (env==nil or env.strip=="")
-  env="ORBIT"
-  ENV['ENV']=env
+if ENV['ENV']==nil or ENV['EXPHOME']==nil then
+   $stderr.puts "The following env variables are needed: ENV and EXPHOME" 
+    exit(1)
 end
 
-
-home="/home/gdistasi/" if env=="ORBIT"
-home="/home/mininet/mininetOmf" if env=="MININET"
+home=ENV['EXPHOME']
+env=ENV['ENV']
 
 #update
 #puts "Updating sources. Type the password if asked."
 #system("bash -c \"cd ~; ./update_l2r.sh\"")
 
-if ARGV[0]==nil
-  require "bufferbloatExps.rb"
-else
-  require ARGV[0]
+
+if ARGV.size!=2 then
+   puts("Usage: make_exps.rb mainOmfFile.rb expsDescrFile.rb")
+   exit(1)
 end
+
+expFile=ARGV[0]
+
+require ARGV[1]
+
+
 
 if ENV["TOPO_LOADED"]!=nil and  ENV["TOPO_LOADED"]!=""
   topo=ENV["TOPO_LOADED"]
@@ -47,6 +51,8 @@ expDone=false
 
 
 $EXPS.each do |exp|
+    
+    exp["env"]=env
 
    if exp["repetitions"] != nil
      repetitions = exp["repetitions"]
@@ -59,18 +65,21 @@ $EXPS.each do |exp|
         system("sudo rm -f /tmp/default*xml /tmp/default*log /tmp/itg*log /tmp/ditg* /tmp/*pcap /tmp/tcStats")
       end
       
-      logdir="autoexps/bufferbloat_0"
+      logdir="autoexps/#{exp["info"]}"
       
       expDone=false
       
       exp.keys.each do |key|
-         if key=="repetition" or key=="value" then
+         if key=="repetition" or key=="info" or key=="defaults" then
              next
          end
          value=exp[key]
          if value.class.to_s=="String" and value.include?("_") then
                 valueS=value.dup
                 valueS["_"]=""
+         elsif value.class.to_s=="String" and value.include?("/") then
+                valueS=value.dup
+                valueS["/"]="-"
          else
             valueS=value 
          end
@@ -142,13 +151,22 @@ $EXPS.each do |exp|
 	            
 	    #execute OMF in a thread
 	    omf_t = Thread.new do
-	      
-	      cmd = "#{exp["value"]} --protocol #{exp["protocol"]} --qdisc #{exp["qdisc"]} --startTcpdump yes   --topo #{exp["topo"]}  --olsrdebug #{exp["olsrdebuglevel"]} --env #{env} --bottleneckRate #{exp["bottleneckRate"]} --rate #{exp["rate"]} --demands #{exp["demand"]}"
-	      
-	      if exp["extraProperties"]!=nil
-            cmd="#{cmd} #{exp["extraProperties"]}"
-	      end
-	      
+        
+          cmd = "omf-5.4 exec #{expFile} -- #{exp["defaults"]}"
+          
+          exp.keys.each do |key|
+             if key=="defaults" or key=="info" then
+                 next
+             else
+                 if exp[key]!=nil and exp[key]!="" then
+                    cmd="#{cmd} --#{key} #{exp[key]}"
+                 else
+                    $stderr.puts "Warning: exp key #{key} = \"#{exp[key]}\"" 
+                 end
+             end
+              
+          end
+
 	      puts cmd
 	      
 	      #puts "max duration #{max_duration}"

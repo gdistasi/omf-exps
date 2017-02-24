@@ -1,7 +1,7 @@
 
 #require 'scripts/getExps.rb'
 
-defaults="omf-5.4 exec testLayer25.rb -- --extraDelay 60 --stabilizeDelay 120 --channels 36,48,149,157,165,44,161 --setAp 00:11:22:33:44:55"
+defaults="--extraDelay 60 --stabilizeDelay 120 --channels 36,48,149,157,165,44,161 --setAp 00:11:22:33:44:55"
 
 $EXPS = Array.new
 

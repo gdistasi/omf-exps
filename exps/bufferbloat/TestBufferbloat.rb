@@ -89,7 +89,8 @@ class TestNew < Orbit::Exp
   end
   
   def EnforceRate(orbit, node, ifn, rate)
-      orbit.RunOnNode(node, "tc qdisc replace dev #{ifn} handle 8000: root tbf burst 14999 rate #{rate}kbit latency 1.0ms")
+      r=Integer(rate)
+      orbit.RunOnNode(node, "tc qdisc replace dev #{ifn} handle 8000: root tbf burst 14999 rate #{r}kbit latency 1.0ms")
   end
   
   def Start
