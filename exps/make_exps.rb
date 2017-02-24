@@ -16,14 +16,12 @@ env=ENV['ENV']
 #system("bash -c \"cd ~; ./update_l2r.sh\"")
 
 
-if ARGV.size!=2 then
-   puts("Usage: make_exps.rb mainOmfFile.rb expsDescrFile.rb")
+if ARGV.size!=1 then
+   puts("Usage: make_exps.rb expsFile.rb")
    exit(1)
 end
 
-expFile=ARGV[0]
-
-require ARGV[1]
+require ARGV[0]
 
 
 
@@ -63,6 +61,11 @@ $EXPS.each do |exp|
       if expDone then
         system("../../scripts/restartOmfResctl.py #{exp["topo"]} #{home}") 
         system("sudo rm -f /tmp/default*xml /tmp/default*log /tmp/itg*log /tmp/ditg* /tmp/*pcap /tmp/tcStats")
+      end
+      
+      if exp["scriptFile"]==nil then
+         $stderr.puts "Experiment dictionary must have a scriptFile key."
+         exit(1)
       end
       
       logdir="autoexps/#{exp["info"]}"
@@ -152,10 +155,10 @@ $EXPS.each do |exp|
 	    #execute OMF in a thread
 	    omf_t = Thread.new do
         
-          cmd = "omf-5.4 exec #{expFile} -- #{exp["defaults"]}"
+          cmd = "omf-5.4 exec #{exp["scriptFile"]} -- #{exp["defaults"]}"
           
           exp.keys.each do |key|
-             if key=="defaults" or key=="info" then
+             if key=="defaults" or key=="info" or key=="scriptFile" then
                  next
              else
                  if exp[key]!=nil and exp[key]!="" then

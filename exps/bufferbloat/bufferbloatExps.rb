@@ -10,7 +10,7 @@ def GetSimpleExps(defaults, qdiscs, description, bottleneckRates, rates, topo, d
                 protocols.each { |protocol|
                     demands.each   { |demand|
                         (1..repetitions).each { |repetition|
-                            exp = {  "demands" => demand,  "qdisc" => qdisc, "topo" => topo,  "repetition" => repetition, "info" => info, "olsrdebuglevel" => 4, "max_duration" => max_duration, "bottleneckRate" =>  bottleneckRate, "rate" => rate, "protocol" => protocol, "defaults" => defaults}
+                            exp = { "scriptFile" => "bufferbloat/TestBufferbloat.rb",   "demands" => demand,  "qdisc" => qdisc, "topo" => topo,  "repetition" => repetition, "info" => info, "olsrdebuglevel" => 4, "max_duration" => max_duration, "bottleneckRate" =>  bottleneckRate, "rate" => rate, "protocol" => protocol, "defaults" => defaults}
                             exps << exp unless (bottleneckRate>rate or demand<bottleneckRate)
                         }
                     }
