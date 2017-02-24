@@ -3,13 +3,22 @@
 require 'find'
 
 
-if ENV['ENV']==nil or ENV['EXPHOME']==nil then
-   $stderr.puts "The following env variables are needed: ENV and EXPHOME" 
+if ENV['ENV']==nil then
+   $stderr.puts "The following env variables is needed: ENV" 
     exit(1)
 end
 
-home=ENV['EXPHOME']
 env=ENV['ENV']
+
+if env=="MININET" then
+    home=ENV['MININETHOME'] 
+    if home==nil or home=="" then
+       $stderr.puts "MININETHOME environment variable must be set!"
+       exit(1)
+    end
+end
+    
+
 
 #update
 #puts "Updating sources. Type the password if asked."
@@ -59,7 +68,7 @@ $EXPS.each do |exp|
    end
       
       if expDone then
-        system("../../scripts/restartOmfResctl.py #{exp["topo"]} #{home}") 
+        system("../scripts/restartOmfResctl.py #{exp["topo"]} #{home}") 
         system("sudo rm -f /tmp/default*xml /tmp/default*log /tmp/itg*log /tmp/ditg* /tmp/*pcap /tmp/tcStats")
       end
       
@@ -255,9 +264,9 @@ $EXPS.each do |exp|
         
 	    if (ok)
 	      sleep(4)
-          puts "Executing: ../../scripts/get_results.sh #{logdir}"
+          puts "Executing: ../scripts/get_results.sh #{logdir}"
           puts `pwd`
-	      system("../../scripts/get_results.sh #{logdir}")
+	      system("../scripts/get_results.sh #{logdir}")
 	      sleep(4)
 	    end
         
