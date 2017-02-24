@@ -1,11 +1,10 @@
 require "routing/layer25.rb"
 require "routing/olsr.rb"
 require "routing/80211s.rb"
-require "ch_assignment/creass.rb"
 require "routing/aodv.rb"
 require "routing/batman-adv.rb"
 
-require "ch_assignment/ChannelAssigner.rb"
+require "ch_assignment/static-channel-assignment.rb"
 require "traffic/SenderReceiverPattern.rb"
 
 defProperty('duration', 120, "Overall duration in seconds of the experiment")
@@ -16,10 +15,7 @@ defProperty('demands', "", "comma separated list of initial demands")
 defProperty('extraDelay', 0, "extra delay before starting assigning channel and start traffic generation")
 defProperty('protocol', "TCP", "protocol to use for traffic generation")
 defProperty('biflow', "no", "set to yes if you want a flow also in the gateway aggregator direction")
-defProperty('caAlgo', "FCPRA", "Channel Assignment algorithm")
-defProperty('caAlgoOption', "2", "option for the channel assignment")
-defProperty('stack', "Olsr", "routing stack")
-defProperty('caserverId', nil, "Caserver id")
+defProperty('stack', "", "routing stack")
 
 
 if (property.stack.to_s=="Layer25")

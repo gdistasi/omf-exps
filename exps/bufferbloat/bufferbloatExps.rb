@@ -23,9 +23,6 @@ def GetSimpleExps(defaults, qdiscs, description, bottleneckRates, rates, topo, d
     return exps
 end
     
-$EXPS = Array.new
-
-
 
 protocols=["UDP","TCP"]
 
@@ -36,7 +33,7 @@ demands=[100,1000,5000,10000,24000,54000]
 extraProperties=""
         #"--setAp 00:11:22:33:44:55"
 defaults="--stabilizeDelay 2 --channels 1,6,11"
-info="bufferbloat_0"
+info="firstBufferbloat"
 qdiscs=["fq_codel"]
 description="Bb exps"
 bottleneckRates=[1000,2000,5000,11000,24000,54000]

@@ -30,6 +30,8 @@ if ARGV.size!=1 then
    exit(1)
 end
 
+$EXPS = Array.new
+
 require ARGV[0]
 
 
@@ -77,7 +79,12 @@ $EXPS.each do |exp|
          exit(1)
       end
       
-      logdir="autoexps/#{exp["info"]}"
+      if exp["info"] == nil then
+         $stderr.puts "Experiment dictionary must have a info key."
+         exit(1)
+      end
+      
+      logdir="autoexps/info_#{exp["info"]}"
       
       expDone=false
       
