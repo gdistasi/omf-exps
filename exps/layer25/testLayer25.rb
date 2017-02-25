@@ -92,8 +92,8 @@ class TestNew < Orbit::Exp
   
   def Start
   #La  @cassign.Start
-    info("Wait for channel assignment to complete")
-    wait(60)
+  #  info("Wait for channel assignment to complete")
+   # wait(60)
     if (property.extraDelay!=0)
       info("Waiting additional #{property.extraDelay}s as requested.")
       wait(property.extraDelay)

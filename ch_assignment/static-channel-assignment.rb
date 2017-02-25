@@ -1,9 +1,9 @@
 
 
 
-defProperty('caAlgo', "FCPRA", "Channel Assignment algorithm")
-defProperty('caAlgoOption', "2", "option for the channel assignment")
-defProperty('caserverId', nil, "Caserver id")
+#defProperty('caAlgo', "FCPRA", "Channel Assignment algorithm")
+#defProperty('caAlgoOption', "2", "option for the channel assignment")
+#defProperty('caserverId', nil, "Caserver id")
 
 # Assign the channels to network nodes' interfaces based on the given initialDemands and using the initialAlgo and numChannels.
 # Supported algorithms are FCPRA and OneChannel.

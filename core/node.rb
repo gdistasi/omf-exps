@@ -51,10 +51,11 @@ class Node
       adds=Set.new
 
       @interfaces.each do |ifn|
-	ifn.GetAddresses().each do |add|
-	  adds.add(add)
-	end
+        ifn.GetAddresses().each do |add|
+            adds.add(add)
+        end
       end
+      
       return adds.to_a
     end
     

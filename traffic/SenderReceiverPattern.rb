@@ -79,7 +79,7 @@ class SenderReceiverPattern
     
     receiverNodes.each do |receiver|
       @protocols.each do |proto|
-        itgReceiver.SetLogFile("/tmp/ditg.log-#{proto}-node-#{receiver.id}")
+        itgReceiver.SetLogFile("/tmp/ditg.log-receiver-#{proto}-node-#{receiver.id}")
         itgReceiver.SetSigChannelPort(@mapProtocols[proto])
 	@receiverApps.Add(itgReceiver.Install(receiver.id))
       end

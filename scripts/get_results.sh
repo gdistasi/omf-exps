@@ -20,6 +20,9 @@ logdir=$1
 
 mkdir $logdir 
 
+
+if [[ $ENV == "ORBIT" ]]; then
+
 for i in `echo $GATEWAYS | tr "," " "` ; do
   scp root@$i:/tmp/ditg.log* $logdir/  2>/dev/null
   #scp root@$i:/tmp/itgrecLog.txt $logdir/itgrecLog.txt-$i
@@ -63,6 +66,24 @@ sleep 2
 
 scp root@$CASERVER:/var/log/caserver.log $logdir/ 2>/dev/null
 
+for i in $LOGFILES; do
+
+  node=`echo $i | cut -d ":" -f 1`
+  files=`echo $i | cut -d ":" -f 2 | tr "," " "`
+  scp root@$node:"$files" $logdir/$node/;
+  
+done
+    
+
+elif [[ $ENV == "MININET" ]]; then
+    cp $MININETHOME/omf-resctl-*.log $logdir/
+    cp /tmp/default*.log $logdir/
+    cp /tmp/ditg.log* $logdir/
+else
+   echo "Err. could not get nodes files because env is $ENV"
+fi
+
+
 #copy the omf ec log
 #if [ -e /tmp/$2.log ]; then
 #  cp /tmp/$2.log $logdir
@@ -101,13 +122,6 @@ touch $logdir/orbit
 who > $logdir/who 2>&1
 ps afxu > $logdir/processes 2>&1
 
-for i in $LOGFILES; do
-
-  node=`echo $i | cut -d ":" -f 1`
-  files=`echo $i | cut -d ":" -f 2 | tr "," " "`
-  scp root@$node:"$files" $logdir/$node/;
-  
-done
 
 #echo "Deleting logs on nodes."
 #./del-logs.sh

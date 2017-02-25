@@ -7,6 +7,13 @@ require 'utils/utils.rb'
 #include Commands from OMF EC
 include OMF::EC::Commands
 
+class Layer25Interface  < Interface
+    
+    
+    
+    
+end
+
 #helper used to instantiate the layer2.5 stack on a node
 class Layer25Helper
    
@@ -60,11 +67,14 @@ class Layer25Helper
     @weigthFlowrates=w
   end
 
-  def Install(node_id, interfaces)
+  def Install(node, interfaces)
 
+    node_id=node.GetId
+      
     group("node#{node_id}").addApplication('layer25application', :id => @name ) do |app|
 	  
-      app.setProperty('ip', "5.0.0.#{node_id+1}")
+      ip="5.0.0.#{node_id+1}"
+      app.setProperty('ip', ip)
         
 	  #if orbit sets the radio, L2R does not
 	  if (@setradios==false)
@@ -124,6 +134,13 @@ class Layer25Helper
       
 	  
 	  app.setProperty('olsrdebug', @olsrdebug)
+      
+      meshIfn = Layer25Interface.new
+      
+      meshIfn.AddAddress(Address.new(ip, "255.255.255.0"))
+      
+      node.GetInterfaces().insert(0, meshIfn)
+      
 	  
 	  info "Adding LayerStack to node #{node_id}"
    end

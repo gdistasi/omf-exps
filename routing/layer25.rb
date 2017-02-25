@@ -68,7 +68,7 @@ class OrbitLayer25 < RoutingStack
       end
    
 
-      @stackApps.Add(stackApp.Install(node.id, node.GetInterfaces))
+      @stackApps.Add(stackApp.Install(node, node.GetInterfaces))
       
     end
     

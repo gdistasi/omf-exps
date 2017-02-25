@@ -2,16 +2,18 @@
 
 def GetSimpleExps(defaults, qdiscs, description, bottleneckRates, rates, topo, demands, repetitions, extraProperties, protocols, info, max_duration)
 
-    exps = Array.new
+    exps = Array.new    
     
     qdiscs.each  {|qdisc|
         bottleneckRates.each {|bottleneckRate|
             rates.each {|rate|
                 protocols.each { |protocol|
                     demands.each   { |demand|
+                        rttm.each { |meter|
                         (1..repetitions).each { |repetition|
-                            exp = { "scriptFile" => "bufferbloat/TestBufferbloat.rb",   "demands" => demand,  "qdisc" => qdisc, "topo" => topo,  "repetition" => repetition, "info" => info, "olsrdebuglevel" => 4, "max_duration" => max_duration, "bottleneckRate" =>  bottleneckRate, "rate" => rate, "protocol" => protocol, "defaults" => defaults}
+                            exp = { "scriptFile" => "bufferbloat/TestBufferbloat.rb",   "demands" => demand,  "qdisc" => qdisc, "topo" => topo,  "repetition" => repetition, "info" => info, "olsrdebuglevel" => 4, "max_duration" => max_duration, "bottleneckRate" =>  bottleneckRate, "rate" => rate, "protocol" => protocol, "defaults" => defaults, "rttm" => meter}
                             exps << exp unless (bottleneckRate>rate or demand<bottleneckRate)
+                            }
                         }
                     }
                 }
@@ -39,8 +41,9 @@ description="Bb exps"
 bottleneckRates=[1000,2000,5000,11000,24000,54000]
 rates=[1000,2000,5000,11000,24000,54000]
 max_duration=14
+rttm={"yes", "no"}
 
-exps=GetSimpleExps(defaults, qdiscs, description, bottleneckRates, rates, topo, demands, repetitions, extraProperties, protocols, info, max_duration)
+exps=GetSimpleExps(defaults, qdiscs, description, bottleneckRates, rates, topo, demands, repetitions, extraProperties, protocols, info, max_duration, rttm)
 
 exps.each{ |exp|
         $EXPS << exp

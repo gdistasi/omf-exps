@@ -223,7 +223,7 @@ def MakeDITGCmdLine(flow, itgRecv, pktSize, protocol=nil, rttm=nil)
     port=itgRecv.GetFreePort()
     
     if (rttm==true)
-      extra="-m rttm -l /tmp/ditg.log-node-#{flow.sender.id}-#{flow.receiver.id}" #FIXME handle the case where there is more than a flow between two nodes
+      extra="-m rttm -l /tmp/ditg.log-sender-node-#{flow.sender.id}-#{flow.receiver.id}" #FIXME handle the case where there is more than a flow between two nodes
     else
       extra=""
     end
