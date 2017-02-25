@@ -140,6 +140,11 @@ class TestNew < Orbit::Exp
     
     
     if (property.aqmPolicy.to_s!="") then
+        
+       nodes.each do |node|
+          @orbit.RunOnNode(node, "modprobe sch_#{property.aqmPolicy.to_s}")
+       end
+        
       conf=AqmConfigurator.new(property.aqmPolicy.to_s,property.aqmPolicyOptions.to_s)
       #@orbit.RunOnNode(bottNode, conf.ResetCmd(ifn_real_name))
       

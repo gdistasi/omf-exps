@@ -1,6 +1,6 @@
 
 
-def GetSimpleExps(defaults, qdiscs, description, bottleneckRates, rates, topo, demands, repetitions, extraProperties, protocols, info, max_duration)
+def GetSimpleExps(defaults, qdiscs, description, bottleneckRates, rates, topo, demands, repetitions, extraProperties, protocols, info, max_duration, rttm)
 
     exps = Array.new    
     
@@ -31,7 +31,7 @@ protocols=["UDP","TCP"]
 repetitions = 1
 topo="bufferbloat/topology.xml"
 #demands="0.05,0.05,0.05,0.05,0.05,0.05"
-demands=[100,1000,5000,10000,24000,54000]
+demands=[1000,5000,10000,24000,54000]
 extraProperties=""
         #"--setAp 00:11:22:33:44:55"
 defaults="--stabilizeDelay 2 --channels 1,6,11"
@@ -41,7 +41,7 @@ description="Bb exps"
 bottleneckRates=[1000,2000,5000,11000,24000,54000]
 rates=[1000,2000,5000,11000,24000,54000]
 max_duration=14
-rttm={"yes", "no"}
+rttm=["yes", "no"]
 
 exps=GetSimpleExps(defaults, qdiscs, description, bottleneckRates, rates, topo, demands, repetitions, extraProperties, protocols, info, max_duration, rttm)
 
