@@ -200,6 +200,12 @@ $EXPS.each do |exp|
                     throw "Error in executing omf: #{line}"
                 end
                 puts line
+                if line.include?("Experiment ID:") then
+                        a=File.open("expId","w")
+                        a.puts(line.split(" ")[4])
+                        a.close
+                end
+
             end
          
             

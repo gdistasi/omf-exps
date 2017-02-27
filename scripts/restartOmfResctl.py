@@ -32,7 +32,6 @@ if __name__ == '__main__':
             os.system("sudo kill %s" %pid)
             time.sleep(1)
             os.system("sudo kill -9 %s 2>/dev/null" %pid)
-            
         #os.system("sudo /etc/init.d/omf-aggmgr-5.4 restart")
     
     
@@ -47,7 +46,7 @@ if __name__ == '__main__':
         if os.environ["ENV"]=="ORBIT":
             os.system("ssh root@%s \"/etc/init.d/omf-resctl-5.4 stop; sleep 1; killall -9 ruby; sleep 3; /etc/init.d/omf-resctl-5.4 start\""%ip)
         elif os.environ["ENV"]=="MININET":
-                    os.system("ssh root@%s \"cd %s; omf-resctl-5.4 -C omf-resctl-%s.yaml --log stdout > omf-resctl-%s.log & \"" %(ip,confDir,name,name))
+                    os.system("ssh root@%s \"cd %s; rm -f omf-resctl-%s.log; sleep 1; omf-resctl-5.4 -C omf-resctl-%s.yaml --log stdout > omf-resctl-%s.log & \"" %(ip,confDir,name, name,name))
         i+=1
                 
             

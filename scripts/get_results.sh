@@ -77,12 +77,12 @@ done
 
 elif [[ $ENV == "MININET" ]]; then
     cp $MININETHOME/omf-resctl-*.log $logdir/
-    cp /tmp/default*.log $logdir/
     cp /tmp/ditg.log* $logdir/
 else
    echo "Err. could not get nodes files because env is $ENV"
 fi
 
+cp /tmp/`cat expId`.* $logdir
 
 #copy the omf ec log
 #if [ -e /tmp/$2.log ]; then

@@ -19,6 +19,7 @@ defProperty('bottleneckRate',"", "rate to apply to bottleneck interface")
 defProperty('rate',"", "rate to apply to bottleneck interface")
 defProperty('withOlsr',"no", "Set to yes if Olsrd has to manage routing")
 defProperty('rttm',"no", "Set to yes if flows have to go to the destinations and then come back at the senders (to measure RTTs)")
+defProperty('txqueuelen',"", "Txqueuelen of the bottleneck interface")
 
     
 if (property.withOlsr.to_s=="yes")
@@ -138,6 +139,9 @@ class TestNew < Orbit::Exp
         bottleneckRate=true
     end
     
+    if (property.txqueuelen.to_s!="")then
+        @orbit.RunOnNode(bottNode, "ifconfig #{ifn_real_name} txqueuelen #{property.txqueuelen.to_s}")
+    end
     
     if (property.aqmPolicy.to_s!="") then
         
