@@ -28,23 +28,23 @@ def GetSimpleExps(defaults, qdiscs, description, bottleneckRates, rates, topo, d
 end
     
 
-protocols=["UDP","TCP"]
-
-repetitions = 1
+info="firstBufferbloat"
+defaults="--stabilizeDelay 2 --channels 1,6,11"
+protocols=["TCP"]
 topo="bufferbloat/topology.xml"
 #demands="0.05,0.05,0.05,0.05,0.05,0.05"
 demands=[1000,5000,10000,24000,54000]
 extraProperties=""
-        #"--setAp 00:11:22:33:44:55"
-defaults="--stabilizeDelay 2 --channels 1,6,11"
-info="firstBufferbloat"
-qdiscs=["fq_codel"]
+#"--setAp 00:11:22:33:44:55"
+qdiscs=["fq_codel", "pfifo_fast", "pie"]
 description="Bb exps"
-bottleneckRates=[1000,2000,5000,11000,24000,54000]
-rates=[1000,2000,5000,11000,24000,54000]
+bottleneckRates=[1000,5000,24000]
+rates=[1000,5000,11000,24000,54000]
 max_duration=14
-rttm=["yes", "no"]
+rttm=["yes"]
 txqueuelens=[10,100]
+repetitions = 2
+
 
 exps=GetSimpleExps(defaults, qdiscs, description, bottleneckRates, rates, topo, demands, repetitions, extraProperties, protocols, info, max_duration, rttm, txqueuelens)
 
