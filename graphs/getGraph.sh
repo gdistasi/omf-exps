@@ -6,7 +6,7 @@
 # Accept as parameters the directories which contain the DITG logs (log filenames must start with ditg.log)
 
 
-samplingInterval=1000
+samplingInterval=200
 
 
 for WHAT in "thr"; do

@@ -1,7 +1,8 @@
 #!/usr/bin/ruby 
 
 require 'find'
-
+require 'digest'
+require 'fileutils'
 
 if ENV['ENV']==nil then
    $stderr.puts "The following env variables is needed: ENV" 
@@ -60,7 +61,7 @@ expDone=false
 
 
 $EXPS.each do |exp|
-    
+    puts "teah"
     exp["env"]=env
 
    if exp["repetitions"] != nil
@@ -84,7 +85,7 @@ $EXPS.each do |exp|
          exit(1)
       end
       
-      logdir="autoexps/info_#{exp["info"]}"
+      expDescr="info_#{exp["info"]}"
       
       expDone=false
       
@@ -109,26 +110,43 @@ $EXPS.each do |exp|
          end
          
          if value!=nil and value!="" then
-            logdir="#{logdir}_#{keyS}_#{valueS}"
+            expDescr="#{expDescr}_#{keyS}_#{valueS}"
          end
       end
       
-      logdir="#{logdir}_repetition_#{exp["repetition"]}"
+      expDescr="#{expDescr}_repetition_#{exp["repetition"]}"
       
 	  if exp["debug"]!=nil and exp["debug"]==true
-	      logdir="#{logdir}_debug_on"
+	      expDescr="#{logdir}_debug_on"
 	      debug=true
 	  else
 	      debug=false
 	  end
 	  
-	  puts logdir
-      system("mkdir -p #{logdir}")
+	  puts expDescr
+      
+      sha=Digest::SHA256.hexdigest(expDescr).to_s
+      puts sha
+      logdir = "autoexps/info_#{exp['info']}_fgp_#{sha}"
+      
+      #if File.exist?("autoexps/#{expDescr}") then 
+      #      system("mv autoexps/#{expDescr} #{logdir}")
+      #      system("echo #{expDescr} > #{logdir}/description")
+      #end
+      
+      
 	
-	  if not File.exist?("#{logdir}/completed")
-          
+     if not File.exist?("#{logdir}/completed")
+                 
         expDone=true  
-          
+        $stderr.puts "Creting experiment directory: #{logdir}"
+	
+	Dir.mkdir logdir unless File.exists?(logdir)
+	
+	File.open("description","w+") { |file| file.write(expDescr) }
+	
+	#FileUtils.mv("description", logdir)
+			
 	    if (exp["topo"] != topo or debug!=topo_debug) and env["ENV"]=="ORBIT"
 		 if (debug)
 		   ENV['DEBUG']="1"

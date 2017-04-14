@@ -42,8 +42,8 @@ bottleneckRates=[1000,5000,24000]
 rates=[1000,5000,11000,24000,54000]
 max_duration=14
 rttm=["yes"]
-txqueuelens=[10,100]
-repetitions = 2
+txqueuelens=[1,10,100,1000]
+repetitions = 3
 
 
 exps=GetSimpleExps(defaults, qdiscs, description, bottleneckRates, rates, topo, demands, repetitions, extraProperties, protocols, info, max_duration, rttm, txqueuelens)

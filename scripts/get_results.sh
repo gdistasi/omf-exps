@@ -122,6 +122,8 @@ touch $logdir/orbit
 who > $logdir/who 2>&1
 ps afxu > $logdir/processes 2>&1
 
+mv description $logdir
+
 
 #echo "Deleting logs on nodes."
 #./del-logs.sh
