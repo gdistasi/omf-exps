@@ -7,6 +7,11 @@ fi
 
 OMFVER=5.4
 
+image_old="gdistasi-node-node7-10.grid.orbit-lab.org-2016-02-03-11-15-33.ndz"
+image_411="gdistasi-node-node1-2.sb1.orbit-lab.org-2017-05-05-09-07-43.ndz"
+
+image=$image_411
+
 if  ! [[ $ENV ]]; then
     
     if [[ `hostname` == "console.grid.orbit-lab.org" ]]; then
@@ -34,13 +39,14 @@ if [[ $ENV == "ORBIT" ]] || [[ $ENV == ORBIT_SB* ]]; then
 
   sleep 60
 
-  image="gdistasi-node-node8-1.grid.orbit-lab.org-2015-10-29-09-50-20.ndz"
+  #image="gdistasi-node-node8-1.grid.orbit-lab.org-2015-10-29-09-50-20.ndz"
 
   #if [[ $DEBUG ]]; then
     #image="giovanni1-bis-debug.ndz"
     #image="gdistasi-node-node8-1.grid.orbit-lab.org-2015-09-24-06-47-16.ndz"
     #image="gdistasi-node-node4-18.grid.orbit-lab.org-2015-09-25-06-46-50.ndz"
     image="gdistasi-node-node7-10.grid.orbit-lab.org-2016-02-03-11-15-33.ndz"
+    image_411="gdistasi-node-node1-2.sb1.orbit-lab.org-2017-05-05-09-07-43.ndz"
  # else
     #image="giovanni1-bis.ndz"
     #image="gdistasi-node-node10-12.grid.orbit-lab.org-2012-11-25-18-06-55.ndz" #omf-${OMFVER}-5.3
