@@ -15,11 +15,20 @@ class AqmConfigurator
   
   
   def GetCmd(ifn, parent=nil)
-    
+ 
       if parent == nil then
-        cmd="tc qdisc replace dev #{ifn} root #{@policy} #{@options}"      
+	
+	if @policy == "FQ_MAC" then
+  	  cmd="tc qdisc replace dev #{ifn} root noqueue"      
+	else
+	  cmd="tc qdisc replace dev #{ifn} root #{@policy} #{@options}"      
+	end
       else
-        cmd="tc qdisc add dev #{ifn} parent #{parent} #{@policy} #{@options}"
+	if @policy == "FQ_MAC" then
+  	  cmd="tc qdisc replace dev #{ifn} parent #{parent} noqueue"      
+	else
+	  cmd="tc qdisc add dev #{ifn} parent #{parent} #{@policy} #{@options}"
+	end
       end
         
     return cmd

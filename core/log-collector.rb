@@ -11,16 +11,16 @@ class LogCollector
 
   
   def Add(node, file)
-    @files[node]=Array.new unless @files[node]!=nil
-    @files[node] << file
+    @files[node.name]=Array.new unless @files[node.name]!=nil
+    @files[node.name] << file
   end
   
   
   def GetFileList(node)
-    if @files[node] == nil  
+    if @files[node.name] == nil  
       return Array.new
     else 
-      return @files[node].to_a
+      return @files[node.name].to_a
     end
   end
   

@@ -121,6 +121,11 @@ class TestNew < Orbit::Exp
     rateSet=false
     bottleneckRateSet=false
     
+    @orbit.AddLogFile(bottNode, "/tmp/ethToolStats")
+    @orbit.AddLogFile(bottNode, "/tmp/tcStats")
+    
+    
+    
     if (property.rate.to_s!="") then
         rateSet=true
        nodes=@orbit.GetNodes()
@@ -143,10 +148,14 @@ class TestNew < Orbit::Exp
         @orbit.RunOnNode(bottNode, "ifconfig #{ifn_real_name} txqueuelen #{property.txqueuelen.to_s}")
     end
     
-    if (property.aqmPolicy.to_s!="") then
+    
+  if (property.aqmPolicy.to_s!="") then
         
+      
+       
+    
        nodes.each do |node|
-          @orbit.RunOnNode(node, "modprobe sch_#{property.aqmPolicy.to_s}")
+          @orbit.RunOnNode(node, "modprobe sch_#{property.aqmPolicy.to_s}") unless property.aqmPolicy.to_s=="FQ_MAC"
        end
         
       conf=AqmConfigurator.new(property.aqmPolicy.to_s,property.aqmPolicyOptions.to_s)
@@ -175,12 +184,14 @@ class TestNew < Orbit::Exp
             @orbit.RunOnNode(bottNode, iConf.GetCmdFeatureOff(f,ifn_real_name))
     end
         
+    
+    @orbit.RunOnNode(bottNode, "ethtool -k #{ifn_real_name} > /tmp/ethToolStats 2>&1")
+    
     #@rtloggers.Start
     @traffic.Start
     wait(property.duration)
     
     @orbit.RunOnNode(bottNode, "tc -s qdisc show dev #{ifn_real_name} > /tmp/tcStats 2>&1")
-    @orbit.AddLogFile(bottNode, "/tmp/tcStats")
     
   end
   

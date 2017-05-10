@@ -66,13 +66,7 @@ sleep 2
 
 scp root@$CASERVER:/var/log/caserver.log $logdir/ 2>/dev/null
 
-for i in $LOGFILES; do
 
-  node=`echo $i | cut -d ":" -f 1`
-  files=`echo $i | cut -d ":" -f 2 | tr "," " "`
-  scp root@$node:"$files" $logdir/$node/;
-  
-done
     
 
 elif [[ $ENV == "MININET" ]]; then
@@ -80,7 +74,16 @@ elif [[ $ENV == "MININET" ]]; then
     cp /tmp/ditg.log* $logdir/
 else
    echo "Err. could not get nodes files because env is $ENV"
-fi
+fi 
+
+for i in $LOGFILES; do
+
+  node=`echo $i | cut -d ":" -f 1`
+  files=`echo $i | cut -d ":" -f 2 | tr "," " "`
+  mkdir -p \"$logdir/$node/\"
+  scp root@$node:"$files" $logdir/$node/;
+  
+done
 
 cp /tmp/`cat expId`.* $logdir
 

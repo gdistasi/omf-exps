@@ -1080,10 +1080,9 @@ class Orbit
 	self.CleanUp
 	
 	Experiment.done
+	
+	self.CreateVarFile
     end
-    
-    
-    self.CreateVarFile
 
   end
   
@@ -1170,10 +1169,13 @@ class Orbit
 	end
 	
 	file.write("LOGFILES=\"")
-    i=  1
+
+	
+	i=1    
+    
 	@nodes.each do |node|
 	  file.write("#{node.GetName}:") if GetEnv()!="MININET"
-      file.write("10.0.0.%d:" %i) if GetEnv()=="MININET"
+	  file.write("10.0.0.%d:" %i) if GetEnv()=="MININET"
       
 	  @logc.GetFileList(node).each do |filename|
 	       file.write("#{filename}")
@@ -1247,6 +1249,7 @@ class Orbit
   end
   
   def AddLogFile(node, file)
+    puts "Adding log file #{file} for node #{node}"
     @logc.Add(node, file)
   end
   
