@@ -40,12 +40,21 @@ end
 class InterfaceConfigurator
   
   
+  def FeatureShort(feature)
+    return "tso" if feature=="tcp-segmentation-offload"
+    return "gso" if feature=="generic-segmentation-offload"
+    return "gro" if feature=="generic-receive-offload"   
+    return "sg" if feature=="scatter-gather"
+    return "tx" if feature=="tx-checksumming"
+    throw "Bad feature: #{feature}"
+  end
+  
   def GetCmdFeatureOn(feature, interface)
-    return "ethtool -K #{interface} #{feature} on"
+    return "ethtool -K #{interface} #{FeatureShort(feature)} on"
   end
   
   def GetCmdFeatureOff(feature, interface)
-    return "ethtool -K #{interface} #{feature} off"
+    return "ethtool -K #{interface} #{FeatureShort(feature)} off"
   end
   
   

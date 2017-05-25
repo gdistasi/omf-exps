@@ -71,8 +71,13 @@ $EXPS.each do |exp|
    end
       
       if expDone then
-        system("../scripts/restartOmfResctl.py #{exp["topo"]} #{home}") 
-        system("sudo rm -f /tmp/default*xml /tmp/default*log /tmp/itg*log /tmp/ditg* /tmp/*pcap /tmp/tcStats")
+	if env=="MININET"
+         system("../scripts/restartOmfResctl.py #{exp["topo"]} #{home}") 
+ 	 system("sudo rm -f /tmp/default*xml /tmp/default*log /tmp/itg*log /tmp/ditg* /tmp/*pcap /tmp/tcStats")
+	else
+	  puts "Restarting ORBIT way"
+	  system("../scripts/restart-resctl.sh")
+	end
       end
       
       if exp["scriptFile"]==nil then
@@ -150,10 +155,10 @@ $EXPS.each do |exp|
 	    if (exp["topo"] != topo or debug!=topo_debug) and env["ENV"]=="ORBIT"
 		 if (debug)
 		   ENV['DEBUG']="1"
-		   system("./prepare.sh #{exp["topo"]}")
+		   #system("./prepare.sh #{exp["topo"]}")
    		   ENV['DEBUG']=""
 		 else
-		  system("./prepare.sh #{exp["topo"]}")
+		  #system("./prepare.sh #{exp["topo"]}")
 		 end
 		  
 		 sleep(120)
@@ -178,7 +183,7 @@ $EXPS.each do |exp|
 	    end
 	    
         if env=="ORBIT" then
-            system("bash ../../scripts/del_logs.sh")
+            system("bash ../scripts/del_logs.sh")
         end
         
         system("rm -rf #{logdir}/*")
@@ -295,8 +300,8 @@ $EXPS.each do |exp|
         
 	    if (ok)
 	      sleep(4)
-          puts "Executing: ../scripts/get_results.sh #{logdir}"
-          puts `pwd`
+	      puts "Executing: ../scripts/get_results.sh #{logdir}"
+	      puts `pwd`
 	      system("../scripts/get_results.sh #{logdir}")
 	      sleep(4)
 	    end

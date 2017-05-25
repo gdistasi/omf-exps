@@ -10,6 +10,13 @@ if ! [[ $ENV ]]; then
   ENV="ORBIT"
 fi
 
+
+if [[ "ORBIT" == $ENV ]]; then
+  USER="gdistasi"
+else  
+  USER="root"
+fi
+
 # check in any case if the variables have been set
 if [[ ! $GATEWAYS ]] || ! [[ $NODES ]]; then
 	echo "Set GATEWAYS, CASERVER and NODES env variables"
@@ -80,7 +87,7 @@ for i in $LOGFILES; do
 
   node=`echo $i | cut -d ":" -f 1`
   files=`echo $i | cut -d ":" -f 2 | tr "," " "`
-  mkdir -p \"$logdir/$node/\"
+  mkdir -p "$logdir/$node/"
   scp root@$node:"$files" $logdir/$node/;
   
 done
@@ -108,11 +115,6 @@ if [[ $EXPID ]]; then
 fi
 
 
-if [[ "ORBIT" == $ENV ]]; then
-  USER="gdistasi"
-else  
-  USER="root"
-fi
  
 find /tmp/ -maxdepth 1 -iname "default*" -uid `id $USER | ruby -nae 'puts $F[0].split("=")[1].split("(")[0]'` -exec mv \{\} $logdir \;
       
@@ -126,6 +128,8 @@ who > $logdir/who 2>&1
 ps afxu > $logdir/processes 2>&1
 
 mv description $logdir
+
+echo "Collection of logs terminated."
 
 
 #echo "Deleting logs on nodes."
