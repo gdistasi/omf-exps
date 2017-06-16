@@ -81,8 +81,13 @@ class Node
       @attributes << att
     end
     
+    def GetEthDataInterface()
+      return @interfaces[0] if @interfaces[0].IsEthernet
+      return nil
+    end
+    
     def GetDataInterface()
-      return @interfaces[1]
+      return @interfaces[0]
     end
     
     def AddInterface(int)

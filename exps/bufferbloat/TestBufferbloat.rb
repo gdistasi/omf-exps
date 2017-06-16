@@ -114,7 +114,7 @@ class TestNew < Orbit::Exp
     end
     
     bottNode = @orbit.GetNodesWithAttribute("bottleneck")[0]
-    ifn = bottNode.GetInterfaces()[1]
+    ifn = bottNode.GetInterfaces()[0]
     
     ifn_real_name=@orbit.GetRealName(bottNode,ifn)	
     

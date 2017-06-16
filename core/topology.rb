@@ -227,6 +227,14 @@ def CreateTopoFile
 			#			info("Adding node: #{name}")
 		      end
 		      
+		      
+		      if (@orbit.GetEnv=="ORBIT") then
+			ethInterf=EthernetInterface.new
+			ethInterf.SetName("eth0")
+			nodeObj.AddInterface(ethInterf)
+		      end
+		      
+		      
 		      if node.at_xpath('attributes')!=nil then
 			attributes = node.at_xpath('attributes').content
 			
@@ -280,13 +288,21 @@ def CreateTopoFile
 		      doc.xpath('//link').each do |link|
 			from = link.at_xpath('from').content
 			to = link.at_xpath('to').content
-			type = link.at_xpath('@type')
-			if (type=="wired")
-			  @wired_links << Link.new(@orbit.GetNodeByName(x),@orbit.GetNodeByName(y), @rate)
-			else
+			type = link.at_xpath('@type').to_s
+						 
+			$stderr.puts "type -#{type}-"
+
+			if type == "wired"
+			  $stderr.puts "Adding wired link from #{from} to #{to}"
+			  @wired_links << Link.new(@orbit.GetNodeByName(from),@orbit.GetNodeByName(to), @rate)
+			elsif type=="wireless" or type=="wifi"
+			  $stderr.puts "Adding wireless link from #{from} to #{to}"
 			  channel = link.at_xpath('channel')
 			  @links << Link.new(@orbit.GetNodeByName(from),@orbit.GetNodeByName(to), @rate, channel)
+			else
+			  $stderr.puts "Type #{type} of link unknown"
 			end
+			$stderr.puts "OK"
 		      end
 		  end	  
 	

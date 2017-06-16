@@ -1,3 +1,4 @@
+
 require "utils/utils.rb"
 require "core/topology.rb"
 require "utils/tcpdump-helper.rb"
@@ -468,7 +469,7 @@ class Orbit
 	@wired_links=@topology.wired_links
 	
 	            
-
+	
 	            
 	        
 	#define the topology in OMF
@@ -511,6 +512,8 @@ class Orbit
 	  
 	end
 	
+	puts "WIRED LINKS #{@wired_links.size}"
+	
 	@wired_links.each do |wlink|
 	                             
 #	  @caserver_node.id => wlink.from.id
@@ -519,17 +522,17 @@ class Orbit
 	    #@orbit.Node(@caserver_node.id).net.e0.up
 	    #@orbit.Node(@caserver_node.id).net.e0.ip="192.168.7.#{@caserver_node.id}/24"
 	    Node(wlink.from.id).exec("ip addr add 192.168.#{wlink.to.id}.1/24 dev #{GetDataInterface()}; ifconfig #{GetDataInterface()} up")      
-	    Node(wlink.from.id).GetDataInterface().AddAddress("192.168.#{wlink.to.id}.1", 24)
-	    wlink.from.AddAddress("192.168.#{wlink.to.id}.1", 24, GetDataInterface())
+	    wlink.from.GetEthDataInterface().AddAddress("192.168.#{wlink.to.id}.1", 24)
+	    #wlink.from.AddAddress("192.168.#{wlink.to.id}.1", 24, GetDataInterface())
 	            
 	    Node(wlink.from.id).exec("sysctl -w net.ipv4.conf.all.accept_redirects=0")
 	    #@orbit.Node(@receiver.id).net.e0.up
 	    #@orbit.Node(@receiver.id).net.e0.ip="192.168.7.#{@receiver.id}/24"
 	    Node(wlink.to.id).exec("ip addr add 192.168.#{wlink.to.id}.2/24 dev #{GetDataInterface()}; ifconfig #{GetDataInterface()} up ")
-	    Node(wlink.to.id).GetDataInterface().AddAddress("192.168.#{wlink.to.id}.2", 24)
+	    wlink.to.GetEthDataInterface().AddAddress("192.168.#{wlink.to.id}.2", 24)
 	            
-    	    wlink.to.AddAddress("192.168.#{wlink.to.id}.2", 24, GetDataInterface())
-	    Node(wlink.from.id).GetDataInterface().AddAddress("192.168.#{wlink.to.id}.1", 24)
+    	    #wlink.to.AddAddress("192.168.#{wlink.to.id}.2", 24, GetDataInterface())
+	    wlink.from.GetEthDataInterface().AddAddress("192.168.#{wlink.to.id}.1", 24)
 
 
 	    
@@ -553,7 +556,7 @@ class Orbit
 	    #end
 	    
 	    #Inform the routing daemon about the link to the external node
-	    AddRoutingRule("192.168.#{wlink.to.id}.1", GetIpFromId(wlink.to.id))
+	    #AddRoutingRule("192.168.#{wlink.to.id}.1", GetIpFromId(wlink.to.id))
 	  
 	    if (wlink.from.type=="S")
 	      @aggregators << wlink.to
@@ -581,13 +584,18 @@ class Orbit
 	            
 	            
   def AddNodeS(name, type="R")
+    
+		    if @env=="ORBIT" and name.include?("x") then
+		        name.gsub!('x','-')
+		    end
+    
 		    node = Orbit::Topology::Node.new(@lastId, name, type)
 		    
 		    if (@env=="ORBIT")
 		      posy=Integer(name.split(".")[0].split("-")[1])
 		      posx=Integer(name.split(".")[0].split("-")[0].split("node")[1])
 		      node.SetPos(posx,posy)
-            end
+		    end
 		    
 		    @lastId=@lastId+1
 	            DefineGroup(node)

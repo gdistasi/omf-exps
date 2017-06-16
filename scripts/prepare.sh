@@ -10,7 +10,7 @@ OMFVER=5.4
 image_old="gdistasi-node-node7-10.grid.orbit-lab.org-2016-02-03-11-15-33.ndz"
 image_411="gdistasi-node-node1-2.sb1.orbit-lab.org-2017-05-05-09-07-43.ndz"
 
-image=$image_411
+image=$image_old
 
 if  ! [[ $ENV ]]; then
     

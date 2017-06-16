@@ -7,27 +7,27 @@
     <attributes>sender</attributes> <!-- comma separated attributes -->
     <alias>sender</alias>
     <interface type="WifiInterface">
-      <mode>adhoc</mode> <!-- either adhoc, station, master -->
-      <channel>11</channel>
+      <mode>adhoc</mode> <!-- either adhoc, station, master --> 
+      <channel>48</channel>
        <essid>station0</essid>
        <standard>n</standard>
-    </interface>    
+    </interface>  
   </node>
 
   <node name="node7x10">
     <alias>ap</alias>
     <attributes>bottleneck</attributes>
-        <interface type="WifiInterface">
+    <!--    <interface type="WifiInterface">
       <mode>adhoc</mode> 
       <channel>11</channel>
       <essid>station0</essid>
       <standard>n</standard>
-    </interface>
+    </interface>-->
    <interface type="WifiInterface">
       <mode>adhoc</mode>
-      <channel>1</channel>
+      <channel>36</channel>
       <essid>station1</essid>
-      <rate>54</rate>
+      <rate>54</rate>	
       <standard>n</standard>
     </interface>
   </node>
@@ -37,13 +37,13 @@
     <alias>receiver</alias>
     <interface type="WifiInterface">
       <mode>adhoc</mode> 
-      <channel>1</channel>
+      <channel>36</channel>
       <essid>station1</essid>
       <standard>n</standard>
     </interface>    
   </node>
 
-  <link type="wifi">
+  <link type="wired">
     <from>sender</from>
     <to>ap</to>
   </link>

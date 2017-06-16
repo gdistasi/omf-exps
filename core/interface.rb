@@ -30,8 +30,8 @@ class Interface
       @name=name
     end
 
-    def AddAddress(address)
-      @addresses << address
+    def AddAddress(address, nm)
+      @addresses << Address.new(address,nm)
     end
     
     def GetAddresses()
