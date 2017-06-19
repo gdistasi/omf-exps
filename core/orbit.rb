@@ -309,6 +309,7 @@ class Orbit
 	
      	node.GetInterfaces().each do |ifn|
   
+	        if ifn.IsWifi()==false then next end
 		#if (@imposed_chs!=nil)
 		 # ch=@channels[@imposed_chs[i]]
 	    	#else  
@@ -522,17 +523,17 @@ class Orbit
 	    #@orbit.Node(@caserver_node.id).net.e0.up
 	    #@orbit.Node(@caserver_node.id).net.e0.ip="192.168.7.#{@caserver_node.id}/24"
 	    Node(wlink.from.id).exec("ip addr add 192.168.#{wlink.to.id}.1/24 dev #{GetDataInterface()}; ifconfig #{GetDataInterface()} up")      
-	    wlink.from.GetEthDataInterface().AddAddress("192.168.#{wlink.to.id}.1", 24)
+	    wlink.from.GetEthDataInterface().AddAddress(Address.new("192.168.#{wlink.to.id}.1", 24))
 	    #wlink.from.AddAddress("192.168.#{wlink.to.id}.1", 24, GetDataInterface())
 	            
 	    Node(wlink.from.id).exec("sysctl -w net.ipv4.conf.all.accept_redirects=0")
 	    #@orbit.Node(@receiver.id).net.e0.up
 	    #@orbit.Node(@receiver.id).net.e0.ip="192.168.7.#{@receiver.id}/24"
 	    Node(wlink.to.id).exec("ip addr add 192.168.#{wlink.to.id}.2/24 dev #{GetDataInterface()}; ifconfig #{GetDataInterface()} up ")
-	    wlink.to.GetEthDataInterface().AddAddress("192.168.#{wlink.to.id}.2", 24)
+	    wlink.to.GetEthDataInterface().AddAddress(Address.new("192.168.#{wlink.to.id}.2", 24))
 	            
     	    #wlink.to.AddAddress("192.168.#{wlink.to.id}.2", 24, GetDataInterface())
-	    wlink.from.GetEthDataInterface().AddAddress("192.168.#{wlink.to.id}.1", 24)
+	    wlink.from.GetEthDataInterface().AddAddress(Address.new("192.168.#{wlink.to.id}.1", 24))
 
 
 	    
@@ -820,6 +821,7 @@ class Orbit
   def SetMode(node)
     
      	node.GetInterfaces().each do |ifn|
+	    if ifn.IsWifi()==false then next end
             info("Configuring interface #{ifn.name} on node #{node.name} in #{ifn.GetMode()}")
 	    if (@setradios and ifn.IsWifi())
 		if (ifn.GetMode()=="adhoc")

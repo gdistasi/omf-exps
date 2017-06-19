@@ -9,6 +9,12 @@ class RoutingStack
     @receiverApps = Orbit::ApplicationContainer.new
     @stackApps = Orbit::ApplicationContainer.new
   end
+  
+  
+  def AddRoutingRule(to, gateway)
+    
+    
+  end
 
   
   
