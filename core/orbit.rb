@@ -522,7 +522,8 @@ class Orbit
 	    #set the ip address of the two interfaces used to realize the link
 	    #@orbit.Node(@caserver_node.id).net.e0.up
 	    #@orbit.Node(@caserver_node.id).net.e0.ip="192.168.7.#{@caserver_node.id}/24"
-	    Node(wlink.from.id).exec("ip addr add 192.168.#{wlink.to.id}.1/24 dev #{GetDataInterface()}; ifconfig #{GetDataInterface()} up")      
+	    Node(wlink.from.id).exec("ip addr add 192.168.#{wlink.to.id}.1/24 dev #{GetDataInterface()}; ifconfig #{GetDataInterface()} up") 
+	    puts "EC: #{wlink.from.GetEthDataInterface()}"
 	    wlink.from.GetEthDataInterface().AddAddress(Address.new("192.168.#{wlink.to.id}.1", 24))
 	    #wlink.from.AddAddress("192.168.#{wlink.to.id}.1", 24, GetDataInterface())
 	            

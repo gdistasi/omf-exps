@@ -228,7 +228,7 @@ def CreateTopoFile
 		      end
 		      
 		      
-		      if (@orbit.GetEnv=="ORBIT") then
+		      if (@orbit.GetEnv=="ORBIT" or @orbit.GetEnv=="MININET") then
 			ethInterf=EthernetInterface.new
 			ethInterf.SetName("eth0")
 			nodeObj.AddInterface(ethInterf)
