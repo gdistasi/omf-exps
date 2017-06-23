@@ -325,7 +325,7 @@ class Orbit
 		if (@setradios and ifn.IsWifi())
 		    
 		    if (ifn.GetMode()!="station")
-                    info ("ASSIGNING CHANNEL #{ch} to interface #{ifn}")  
+                    info ("Assigning channel #{ch} to interface #{ifn.GetName}")  
 
 		      AssignChannel(node, ifn, ch)
 		    end
