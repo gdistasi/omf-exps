@@ -278,7 +278,7 @@ class Orbit
       
       if (ifn.GetStandard()=="n")
                  #warn("Setting the rate is not supported for #{ifn.GetStandard} interfaces!")
-                Node(node.id).exec("iwconfig dev #{GetRealName(node,ifn)} rate #{rate}")
+                Node(node.id).exec("iwconfig #{GetRealName(node,ifn)} rate #{rate}")
                  return
       end
               

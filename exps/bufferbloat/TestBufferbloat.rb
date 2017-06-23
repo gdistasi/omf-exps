@@ -90,9 +90,18 @@ class TestNew < Orbit::Exp
   end
   
   def EnforceRate(orbit, node, ifn, rate)
+    
       r=Integer(rate)
-      orbit.RunOnNode(node, "tc qdisc replace dev #{ifn} handle 8000: root tbf burst 14999 rate #{r}kbit latency 1.0ms")
-  end
+      
+      ifn_real_name=@orbit.GetRealName(node, ifn)
+
+      if ifn.IsEthernet or @orbit.GetEnv=="MININET" then
+	orbit.RunOnNode(node, "tc qdisc replace dev #{ifn_real_name} handle 8000: root tbf burst 14999 rate #{r}kbit latency 1.0ms")
+      elsif ifn.IsWifi then
+	orbit.EnforceRate(node, ifn, rate)
+      end
+
+  end	
   
   def Start
     #@cassign.Start
@@ -127,12 +136,12 @@ class TestNew < Orbit::Exp
     
     
     if (property.rate.to_s!="") then
-        rateSet=true
+       rateSet=true
        nodes=@orbit.GetNodes()
        nodes.each do |node|
           node.GetInterfaces().each do |int|
              if int.class.to_s=="WifiInterface" then
-                EnforceRate(@orbit, node, @orbit.GetRealName(node, int), property.rate.to_s)  
+                EnforceRate(@orbit, node, int,  property.rate.to_s)  
              end
           end
        end
@@ -140,7 +149,7 @@ class TestNew < Orbit::Exp
     
     
     if (property.bottleneckRate.to_s!="")
-        EnforceRate(@orbit,bottNode, @orbit.GetRealName(bottNode,ifn), property.bottleneckRate.to_s)
+        EnforceRate(@orbit,bottNode, ifn, property.bottleneckRate.to_s)
         bottleneckRate=true
     end
     
