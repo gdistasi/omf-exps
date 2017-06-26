@@ -274,18 +274,20 @@ class Orbit
   end
   
   def EnforceRate(node, ifn, rate)
+      rateMb=Integear(rate)/1000
+    
       if GetEnv()=="MININET" then return EnforceRateOmf(node, ifn, rate) end
       
       if (ifn.GetStandard()=="n")
                  #warn("Setting the rate is not supported for #{ifn.GetStandard} interfaces!")
-                Node(node.id).exec("iwconfig #{GetRealName(node,ifn)} rate #{rate}")
+                Node(node.id).exec("iwconfig #{GetRealName(node,ifn)} rate #{rateMb}")
                  return
       end
               
       if (ifn.GetChannel<36)                 
-                Node(node.id).exec("iw dev #{GetRealName(node,ifn)} set bitrates legacy-2.4 #{rate}")
+                Node(node.id).exec("iw dev #{GetRealName(node,ifn)} set bitrates legacy-2.4 #{rateMb}")
       else
-                Node(node.id).exec("iw dev #{GetRealName(node,ifn)} set bitrates legacy-5 #{rate}")
+                Node(node.id).exec("iw dev #{GetRealName(node,ifn)} set bitrates legacy-5 #{rateMb}")
       end
       
   end
