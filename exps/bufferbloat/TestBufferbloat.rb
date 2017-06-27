@@ -16,7 +16,7 @@ defProperty('aqmPolicyOptions', "", "option to apply to aqm policy")
 defProperty('onFeatures', "", "semicolon separated list of features to apply to interface (e.g. gso)")
 defProperty('offFeatures', "", "semicolon separated list of feature to turn off to interface (e.g. gso)")
 defProperty('bottleneckRate',"", "rate to apply to bottleneck interface")
-defProperty('rate',"", "rate to apply to bottleneck interface")
+defProperty('rate',"", "rate to apply to wifi interface")
 defProperty('withOlsr',"no", "Set to yes if Olsrd has to manage routing")
 defProperty('rttm',"no", "Set to yes if flows have to go to the destinations and then come back at the senders (to measure RTTs)")
 defProperty('txqueuelen',"", "Txqueuelen of the bottleneck interface")
@@ -40,6 +40,7 @@ orbit.UseTopo(property.topo)
 
 orbit.SetDefaultTxPower(15)
 
+puts "MADONNA"
    
 class TestNew < Orbit::Exp
 
@@ -90,13 +91,11 @@ class TestNew < Orbit::Exp
   end
   
   def EnforceRate(orbit, node, ifn, rate)
-    
-      r=Integer(rate)
-      
+
       ifn_real_name=@orbit.GetRealName(node, ifn)
 
       if ifn.IsEthernet or @orbit.GetEnv=="MININET" then
-	orbit.RunOnNode(node, "tc qdisc replace dev #{ifn_real_name} handle 8000: root tbf burst 14999 rate #{r}kbit latency 1.0ms")
+	orbit.RunOnNode(node, "tc qdisc replace dev #{ifn_real_name} handle 8000: root tbf burst 14999 rate #{rate}kbit latency 1.0ms")
       elsif ifn.IsWifi then
 	orbit.EnforceRate(node, ifn, rate)
       end
@@ -122,7 +121,7 @@ class TestNew < Orbit::Exp
       wait(property.extraDelay)
     end
     
-    bottNode = @orbit.GetNodesWithAttribute("bottleneck")[0]
+    bottNode = @orbit.GetNodesWithAttribute("bottlenek")[0]
     ifn = bottNode.GetInterfaces()[0]
     
     ifn_real_name=@orbit.GetRealName(bottNode,ifn)	
@@ -134,9 +133,9 @@ class TestNew < Orbit::Exp
     @orbit.AddLogFile(bottNode, "/tmp/tcStats")
     
     
-    
+   
     if (property.rate.to_s!="") then
-       rateSet=true
+      rateSet=true
        nodes=@orbit.GetNodes()
        nodes.each do |node|
           node.GetInterfaces().each do |int|
@@ -159,10 +158,7 @@ class TestNew < Orbit::Exp
     
     
   if (property.aqmPolicy.to_s!="") then
-        
-      
        
-    
        nodes.each do |node|
           @orbit.RunOnNode(node, "modprobe sch_#{property.aqmPolicy.to_s}") unless property.aqmPolicy.to_s=="FQ_MAC"
        end
@@ -173,9 +169,9 @@ class TestNew < Orbit::Exp
       if @orbit.GetEnv()=="MININET" then
           parent=8000
           
-          if not (rateSet or bottleneckRateSet) then
-             abort("It is necessary to set rate or bottleneck rate in MININET Environment!") 
-          end
+#          if not (rateSet or bottleneckRateSet) then
+#             abort("It is necessary to set rate or bottleneck rate in MININET Environment!") 
+#          end
           
       else
          parent=nil 

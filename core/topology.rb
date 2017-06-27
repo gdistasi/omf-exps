@@ -269,8 +269,13 @@ def CreateTopoFile
 			  ifn.SetMode(mode)
 			  ifn.SetEssid(essid)
                           ifn.SetStandard(standard)
-			  ifn.SetRate(rate)
-			  nodeObj.AddInterface(ifn)
+                          
+                          if (rate.to_i.to_s==rate) then
+                            ifn.SetRate(rate.to_i)
+                          end
+			  
+
+                          nodeObj.AddInterface(ifn)
 			  ifn.SetName(@orbit.GetRealName(nodeObj,ifn))
 			else
 			  abort("Type of interface not supported: #{type}")

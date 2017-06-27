@@ -274,14 +274,15 @@ class Orbit
   end
   
   def EnforceRate(node, ifn, rate)
-      rateMb=Integear(rate)/1000
+puts "RATE #{rate}"      
+      rateMb=Integer(rate)/1000
     
-      if GetEnv()=="MININET" then return EnforceRateOmf(node, ifn, rate) end
+      if GetEnv()=="MININET" then return EnforceRateOmf(node, ifn, rateMb) end
       
       if (ifn.GetStandard()=="n")
                  #warn("Setting the rate is not supported for #{ifn.GetStandard} interfaces!")
                 Node(node.id).exec("iwconfig #{GetRealName(node,ifn)} rate #{rateMb}")
-                 return
+                return
       end
               
       if (ifn.GetChannel<36)                 
@@ -298,8 +299,8 @@ class Orbit
       
       if (@setradios)
 	node.GetInterfaces().each do |ifn|
-            if ifn.IsWifi() and ifn.GetRate()!=""
-                EnforceRate(node, ifn, ifn.GetRate())
+            if ifn.IsWifi() and ifn.GetRate()!=nil
+               EnforceRate(node, ifn, ifn.GetRate())
             end
         end
      end
